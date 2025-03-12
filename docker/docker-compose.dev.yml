@@ -1,12 +1,12 @@
 services:
    app:
-      image: reversi
+      image: reversi-dev
       build:
          context: ../
-         dockerfile: Dockerfile.dev
+         dockerfile: docker/Dockerfile.dev
       volumes:
          - ../:/usr/src/app
-      container_name: reversi
+      container_name: reversi-dev
       ports:
          - 3005:3000
       env_file:
