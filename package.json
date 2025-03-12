@@ -11,18 +11,19 @@
       "test:commit": "jest --clearCache && jest --watchAll=false",
       "docker": "npm run docker:dev",
       "docker:dev": "docker compose -f docker/docker-compose.dev.yml up",
+      "docker:prod": "docker compose -f docker/docker-compose.prod.yml up",
       "spellcheck": "cspell --no-progress --dot \"**/*.{js,ts,jsx,tsx,json,html,xml,svg,css,scss,sass,md}\"",
-      "prepare": "husky"
+      "prepare": "husky || true"
    },
    "dependencies": {
       "clsx": "^2.1.1",
       "next": "15.2.1",
       "react": "^19.0.0",
-      "react-dom": "^19.0.0"
+      "react-dom": "^19.0.0",
+      "@tailwindcss/postcss": "^4"
    },
    "devDependencies": {
       "@eslint/eslintrc": "^3",
-      "@tailwindcss/postcss": "^4",
       "@testing-library/dom": "^10.4.0",
       "@testing-library/jest-dom": "^6.6.3",
       "@testing-library/react": "^16.2.0",

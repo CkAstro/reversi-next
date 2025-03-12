@@ -1,0 +1,14 @@
+services:
+   app:
+      image: reversi
+      container_name: reversi
+      build:
+         context: ../
+         dockerfile: docker/Dockerfile.prod
+      restart: always
+      # volumes:
+      #    - ../:/app
+      ports:
+         - 3005:3000
+      env_file:
+         - ../.env
