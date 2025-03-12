@@ -1,2 +1,13 @@
 npm run spellcheck
 npm run test:commit
+
+VERSION_TEST=$(git diff HEAD package.json | grep 'version' | wc -l)
+if [ "$VERSION_TEST" -eq "0" ]; then
+   echo "\nWARNING: version was not updated in package.json"
+
+   exec < /dev/tty
+   read -p "Do you want to commit anyway? (y/n): " CONFIRM
+
+   if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != 'Y' ]; then exit 1; fi
+   echo "committing without updating version..\n"
+fi
