@@ -1,0 +1,10 @@
+{
+   "version": "0.2",
+   "words": ["reversi", "kolb"],
+   "ignorePaths": ["package.json", "package-lock.json"],
+   "useGitignore": true,
+   "cache": {
+      "useCache": true,
+      "cacheLocation": "./node_modules/.cache/cspell/.cspell"
+   }
+}

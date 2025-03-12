@@ -1,0 +1,13 @@
+services:
+   app:
+      image: reversi
+      build:
+         context: ../
+         dockerfile: Dockerfile.dev
+      volumes:
+         - ../:/usr/src/app
+      container_name: reversi
+      ports:
+         - 3005:3000
+      env_file:
+         - ../.env
