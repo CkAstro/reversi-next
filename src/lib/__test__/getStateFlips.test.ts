@@ -1,4 +1,4 @@
-import { getStateFlips, _forTesting } from '@/lib/getStateFlips';
+import { getStateFlips, _forTesting } from '../getStateFlips';
 
 describe('getStateFlips - directions', () => {
    const { isUp, isDown, isLeft, isRight } = _forTesting;

@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import GamePiece, { type GamePieceState } from '@/app/games/GamePiece';
 import { getStateFlips } from '@/lib/getStateFlips';
+import { validateMove } from '@/lib/validateMove';
 
 export default function GameBoard() {
    const [turn, setTurn] = useState<1 | -1>(1);
+   // const [message, setMessage] = useState('');
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
    const [highlights, setHighlights] = useState<number[]>([]);
    const [gameState, setGameState] = useState<GamePieceState[]>(
@@ -17,12 +19,27 @@ export default function GameBoard() {
       setHighlights([]);
    }, [gameState]);
 
+   const setPlayerMessage = (type: 'invalid' | 'player1' | 'player2') => {
+      if (type === 'invalid') console.log('not your move');
+      else if (type === 'player1') console.log('player 1 turn');
+      else console.log('player 2 turn');
+   };
+
    const handleClick = (index: number) => {
       if (gameState[index] !== null) return;
 
-      const newState = [...gameState];
-      newState[index] = turn;
-      setTurn((prev) => -prev as 1 | -1);
+      const newState = validateMove(gameState, turn, index);
+      if (newState === null) {
+         setPlayerMessage('invalid');
+         return;
+      }
+
+      setTurn((prev) => {
+         const next = -prev as 1 | -1;
+         setPlayerMessage(next === 1 ? 'player1' : 'player2');
+
+         return next;
+      });
       setGameState(newState);
    };
 
