@@ -1,0 +1,21 @@
+name: Deployment pipeline
+
+on:
+   push:
+      branches: [main, dev]
+   pull_request:
+      branches: [main, dev]
+      types: [opened, synchronized]
+
+jobs:
+   ci:
+      runs-on: ubuntu-24.04
+      steps:
+         - uses: actions/checkout@v4
+         - uses: actions/setup-node@v4
+           with:
+              node-version: '20'
+         - run: npm install
+         - run: npm run lint
+         - run: npm run test:commit
+         - run: npm run build
