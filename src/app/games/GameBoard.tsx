@@ -1,3 +1,4 @@
+// cSpell:words unsub
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -5,6 +6,7 @@ import clsx from 'clsx';
 import GamePiece, { type GamePieceState } from '@/app/games/GamePiece';
 import { getStateFlips } from '@/lib/getStateFlips';
 import { validateMove } from '@/lib/validateMove';
+import { useWebSocket } from '@/hooks/useWebSocket';
 
 export default function GameBoard() {
    const [turn, setTurn] = useState<1 | -1>(1);
@@ -18,6 +20,17 @@ export default function GameBoard() {
    useEffect(() => {
       setHighlights([]);
    }, [gameState]);
+
+   const [sub, unsub] = useWebSocket();
+   useEffect(() => {
+      const onCustom = (d: string) =>
+         console.log('custom event response', JSON.parse(d));
+
+      sub('custom', onCustom);
+      return () => {
+         unsub('custom', onCustom);
+      };
+   }, [sub, unsub]);
 
    const setPlayerMessage = (type: 'invalid' | 'player1' | 'player2') => {
       if (type === 'invalid') console.log('not your move');

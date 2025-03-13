@@ -1,6 +1,6 @@
 {
    "name": "reversi-next",
-   "version": "0.1.1",
+   "version": "0.1.2",
    "private": true,
    "scripts": {
       "dev": "next dev --turbopack",
@@ -16,11 +16,13 @@
       "prepare": "husky || true"
    },
    "dependencies": {
+      "@tailwindcss/postcss": "^4",
       "clsx": "^2.1.1",
       "next": "15.2.1",
       "react": "^19.0.0",
       "react-dom": "^19.0.0",
-      "@tailwindcss/postcss": "^4"
+      "socket.io": "^4.8.1",
+      "socket.io-client": "^4.8.1"
    },
    "devDependencies": {
       "@eslint/eslintrc": "^3",
