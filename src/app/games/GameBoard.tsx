@@ -3,17 +3,18 @@
 
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import GamePiece, { type GamePieceState } from '@/app/games/GamePiece';
+import GamePiece from '@/app/games/GamePiece';
 import { getStateFlips } from '@/lib/getStateFlips';
 import { validateMove } from '@/lib/validateMove';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
 
 export default function GameBoard() {
-   const [turn, setTurn] = useState<1 | -1>(1);
+   const [turn, setTurn] = useState<ReversiPlayer>(1);
    // const [message, setMessage] = useState('');
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
    const [highlights, setHighlights] = useState<number[]>([]);
-   const [gameState, setGameState] = useState<GamePieceState[]>(
+   const [gameState, setGameState] = useState<ReversiBoardState>(
       Array.from({ length: 64 }, () => null)
    );
 
