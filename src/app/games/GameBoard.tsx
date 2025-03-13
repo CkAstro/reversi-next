@@ -8,28 +8,31 @@ import { getStateFlips } from '@/lib/getStateFlips';
 import { validateMove } from '@/lib/validateMove';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
+import { parseBoardState } from '@/lib/boardState/parseBoardState';
 
 export default function GameBoard() {
    const [turn, setTurn] = useState<ReversiPlayer>(1);
    // const [message, setMessage] = useState('');
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
    const [highlights, setHighlights] = useState<number[]>([]);
-   const [gameState, setGameState] = useState<ReversiBoardState>(
+   const [boardState, setBoardState] = useState<ReversiBoardState>(
       Array.from({ length: 64 }, () => null)
    );
 
    useEffect(() => {
       setHighlights([]);
-   }, [gameState]);
+   }, [boardState]);
 
    const [sub, unsub] = useWebSocket();
    useEffect(() => {
-      const onCustom = (d: string) =>
-         console.log('custom event response', JSON.parse(d));
+      const onBoardUpdate = (serializedState: string) => {
+         const boardState = parseBoardState(serializedState);
+         setBoardState(boardState);
+      };
 
-      sub('custom', onCustom);
+      sub('boardUpdate', onBoardUpdate);
       return () => {
-         unsub('custom', onCustom);
+         unsub('boardUpdate', onBoardUpdate);
       };
    }, [sub, unsub]);
 
@@ -40,9 +43,9 @@ export default function GameBoard() {
    };
 
    const handleClick = (index: number) => {
-      if (gameState[index] !== null) return;
+      if (boardState[index] !== null) return;
 
-      const newState = validateMove(gameState, turn, index);
+      const newState = validateMove(boardState, turn, index);
       if (newState === null) {
          setPlayerMessage('invalid');
          return;
@@ -54,15 +57,15 @@ export default function GameBoard() {
 
          return next;
       });
-      setGameState(newState);
+      setBoardState(newState);
    };
 
    const handlePointerEnter = (index: number) => {
       setMouseoverIndex(index);
 
-      if (gameState[index] !== null) return;
+      if (boardState[index] !== null) return;
 
-      const flippedPieces = getStateFlips(gameState, turn, index);
+      const flippedPieces = getStateFlips(boardState, turn, index);
       setHighlights(flippedPieces);
    };
 
@@ -73,7 +76,7 @@ export default function GameBoard() {
 
    return (
       <div className="p-4 bg-stone-800 grid grid-cols-8 select-none user-drag:none">
-         {gameState.map((piece, i) => (
+         {boardState.map((piece, i) => (
             <div
                key={i}
                className="relative w-11 h-11 bg-green-700 border-[2px] border-stone-800"

@@ -5,6 +5,7 @@ import type { Server as HTTPServer } from 'http';
 import { Server } from 'socket.io';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Socket } from 'net';
+import { serializeBoardState } from '@/lib/boardState/serializeBoardState';
 
 type NextApiResponseWS = NextApiResponse & {
    socket: Socket & {
@@ -34,8 +35,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
       io.on('connection', (socket) => {
          console.log('client connected with id', socket.id);
 
-         const tmp = { a: 3, b: 4 };
-         socket.emit('custom', JSON.stringify(tmp));
+         const boardState = Array.from({ length: 64 }).map((square, i) => {
+            if ([27, 28, 35, 36, 37].includes(i)) return i % 2 === 0 ? 1 : -1;
+            return null;
+         });
+         setTimeout(() => {
+            console.log('sending board update');
+            socket.emit('boardUpdate', serializeBoardState(boardState));
+         }, 2000);
 
          socket.on('disconnect', (reason) => {
             console.log('client disconnected', reason);
