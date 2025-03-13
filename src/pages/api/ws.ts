@@ -5,7 +5,9 @@ import type { Server as HTTPServer } from 'http';
 import { Server } from 'socket.io';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Socket } from 'net';
-import { serializeBoardState } from '@/lib/boardState/serializeBoardState';
+// import { serializeBoardState } from '@/lib/boardState/serializeBoardState';
+// import { clients } from '@/lib/clients/clients';
+// import { messenger } from '@/lib/clients/messenger';
 
 type NextApiResponseWS = NextApiResponse & {
    socket: Socket & {
@@ -34,6 +36,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
 
       io.on('connection', (socket) => {
          console.log('client connected with id', socket.id);
+         // clients.addClient(socket);
+
+         const { id } = socket;
 
          const boardState = Array.from({ length: 64 }).map((square, i) => {
             if ([27, 28, 35, 36, 37].includes(i)) return i % 2 === 0 ? 1 : -1;
@@ -41,7 +46,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
          });
          setTimeout(() => {
             console.log('sending board update');
-            socket.emit('boardUpdate', serializeBoardState(boardState));
+            // messenger.sendBoardUpdate(id, boardState);
          }, 2000);
 
          socket.on('disconnect', (reason) => {
