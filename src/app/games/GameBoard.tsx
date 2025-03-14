@@ -6,9 +6,9 @@ import clsx from 'clsx';
 import GamePiece from '@/app/games/GamePiece';
 import { getStateFlips } from '@/lib/getStateFlips';
 import { validateMove } from '@/lib/validateMove';
-import { useWebSocket } from '@/hooks/useWebSocket';
 import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
 import { parseBoardState } from '@/lib/boardState/parseBoardState';
+import { useSocket } from '@/app/games/useSocket';
 
 export default function GameBoard() {
    const [turn, setTurn] = useState<ReversiPlayer>(1);
@@ -23,7 +23,8 @@ export default function GameBoard() {
       setHighlights([]);
    }, [boardState]);
 
-   const [sub, unsub] = useWebSocket();
+   const sub = useSocket((state) => state.subscribe);
+   const unsub = useSocket((state) => state.unsubscribe);
    useEffect(() => {
       const onBoardUpdate = (serializedState: string) => {
          const boardState = parseBoardState(serializedState);
