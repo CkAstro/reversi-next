@@ -26,16 +26,15 @@ import type { Socket } from 'socket.io';
 interface SocketInformation {
    socketId: string;
    socket: Socket;
-   connectionIp: string;
-   isConnected: boolean;
+   authKey: string | null;
+   isConnected: () => boolean;
    lastActive: number;
 }
 
 type ReversiPlayerStatus = 'playing' | 'observing' | 'idle';
 interface PlayerInformation {
-   username: string;
-   playerId: ReversiPlayerId;
-   currentGameId: ReversiGame['gameId'];
+   username: string | null;
+   currentGameId: ReversiGame['gameId'] | null;
    playerStatus: ReversiPlayerStatus;
    opponentId: ReversiPlayerId | null;
 }

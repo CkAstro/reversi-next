@@ -5,9 +5,7 @@ import type { Server as HTTPServer } from 'http';
 import { Server } from 'socket.io';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Socket } from 'net';
-// import { serializeBoardState } from '@/lib/boardState/serializeBoardState';
-// import { clients } from '@/lib/clients/clients';
-// import { messenger } from '@/lib/clients/messenger';
+import { initConnection } from '@/lib/client/client';
 
 type NextApiResponseWS = NextApiResponse & {
    socket: Socket & {
@@ -24,36 +22,20 @@ export const config = {
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
-   if (!res.socket.server.io) {
-      const path = '/api/ws';
-      const httpServer: HTTPServer = res.socket.server;
-      const io = new Server(httpServer, {
-         path,
-         addTrailingSlash: false,
-      });
+   if (res.socket.server.io) return res.end();
+   const path = '/api/ws';
+   const httpServer: HTTPServer = res.socket.server;
+   const io = new Server(httpServer, {
+      path,
+      addTrailingSlash: false,
+      cors: {
+         origin: '*',
+         methods: ['GET', 'POST'],
+      },
+   });
 
-      res.socket.server.io = io;
+   io.on('connection', initConnection);
 
-      io.on('connection', (socket) => {
-         console.log('client connected with id', socket.id);
-         // clients.addClient(socket);
-
-         const { id } = socket;
-
-         const boardState = Array.from({ length: 64 }).map((square, i) => {
-            if ([27, 28, 35, 36, 37].includes(i)) return i % 2 === 0 ? 1 : -1;
-            return null;
-         });
-         setTimeout(() => {
-            console.log('sending board update');
-            // messenger.sendBoardUpdate(id, boardState);
-         }, 2000);
-
-         socket.on('disconnect', (reason) => {
-            console.log('client disconnected', reason);
-         });
-      });
-   }
-
+   res.socket.server.io = io;
    res.end();
 }
