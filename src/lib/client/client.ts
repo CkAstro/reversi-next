@@ -1,22 +1,36 @@
+import { getCurrentState } from '@/lib/game/gameManager';
 import type { WsClient } from '@/types/reversi';
+import type { Socket } from 'socket.io';
 
 type AuthId = string;
 const clientStore: Record<AuthId, WsClient> = {};
 
+const transferClient = (previous: Socket, current: Socket) => {
+   previous.rooms.forEach((room) => {
+      previous.leave(room);
+      current.join(room);
+   });
+   previous.disconnect();
+};
+
 const authenticate = (client: WsClient) => {
-   // const authKey = req; // this will be an object at some point
    console.log('attempting authentication');
    const authKey = client.socket.handshake.auth.key;
 
-   if (authKey in clientStore) {
-      const previousConnection = clientStore[authKey];
-      // const previousSocket = previousConnection.socket;
-      Object.assign(previousConnection, {
+   if (!authKey) {
+      client.socket.emit('auth', 'reject');
+      client.socket.disconnect();
+   } else if (authKey in clientStore) {
+      const previousClient = clientStore[authKey];
+      const previousSocket = previousClient.socket;
+      Object.assign(previousClient, {
          socketId: client.socketId,
          socket: client.socket,
          isConnected: client.isConnected,
          lastActive: Date.now(),
       });
+
+      transferClient(previousSocket, client.socket);
       client.socket.emit('auth', 'reconnect');
    } else {
       client.authKey = authKey;
@@ -51,10 +65,12 @@ export const initConnection = (socket: WsClient['socket']) => {
       console.log('client disconnected with reason:', reason);
    });
 
-   const timeout = setInterval(() => {
-      console.log('connected?', socket.connected);
+   const currentLoginState = getCurrentState();
+   socket.emit('init', currentLoginState);
+};
 
-      if (!socket.connected) clearInterval(timeout);
-      socket.emit('ping', 'ping');
-   }, 2000);
+export const _forTesting = {
+   authenticate,
+   transferClient,
+   clientStore,
 };

@@ -1,18 +1,17 @@
 'use client';
 
 import { getUniqueId } from '@/lib/utils/getUniqueId';
-import { io } from 'socket.io-client';
 import { create } from 'zustand';
-
-type SubscriberAction = (data: string) => void;
-type Subscribe = (event: string, action: SubscriberAction) => void;
-type Unsubscribe = Subscribe;
-type Emit = (event: string, data: string) => void;
-interface SocketState {
-   subscribe: Subscribe;
-   unsubscribe: Unsubscribe;
-   emit: Emit;
-}
+import { io } from 'socket.io-client';
+import type {
+   ActiveGameInfo,
+   CompletedGameInfo,
+   PlayerName,
+   WaitingGameInfo,
+   ClientSocket as ReversiSocket,
+} from '@/types/socket';
+import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
+import { createNewBoard } from '@/lib/boardState/createNewBoard';
 
 const getAuthKey = () => {
    if (typeof window === 'undefined') return null;
@@ -24,23 +23,41 @@ const getAuthKey = () => {
    return authKey;
 };
 
-export const useSocket = create<SocketState>(() => {
+interface SocketState {
+   activeGames: ActiveGameInfo[];
+   waitingGames: WaitingGameInfo[];
+   recentGames: CompletedGameInfo[];
+   boardState: ReversiBoardState;
+   role: ReversiPlayer;
+   playerA: PlayerName | null;
+   playerB: PlayerName | null;
+   observerCount: number;
+}
+
+export const useSocket = create<SocketState>((set) => {
    const authKey = getAuthKey();
-   const socket = io(undefined, {
+   const socket: ReversiSocket = io(undefined, {
       path: '/api/ws',
       auth: { key: authKey },
       addTrailingSlash: false,
    });
 
+   socket.on('init', ({ active, complete, waiting }) => {
+      set({
+         activeGames: active,
+         waitingGames: waiting,
+         recentGames: complete,
+      });
+   });
+
    return {
-      subscribe: (event, action) => {
-         socket.on(event, action);
-      },
-      unsubscribe: (event, action) => {
-         socket.off(event, action);
-      },
-      emit: (event, data) => {
-         socket.emit(event, data);
-      },
+      activeGames: [],
+      waitingGames: [],
+      recentGames: [],
+      boardState: createNewBoard(),
+      role: 1,
+      playerA: null,
+      playerB: null,
+      observerCount: 0,
    };
 });
