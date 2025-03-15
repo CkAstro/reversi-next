@@ -1,10 +1,9 @@
+import type { ReversiSquareState } from '@/types/reversi';
 import clsx from 'clsx';
 
-export type GamePieceState = 1 | -1 | null;
-
 interface GamePieceProps {
-   piece: GamePieceState;
-   preview: GamePieceState;
+   piece: ReversiSquareState;
+   preview: ReversiSquareState;
 }
 
 function GamePiece({ piece, preview }: GamePieceProps) {
