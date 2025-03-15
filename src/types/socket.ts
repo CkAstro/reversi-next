@@ -23,6 +23,7 @@ export interface CompletedGameInfo {
 export interface WaitingGameInfo {
    gameId: string;
    playerA: PlayerName;
+   playerB: null;
 }
 
 export interface InitResponse {
