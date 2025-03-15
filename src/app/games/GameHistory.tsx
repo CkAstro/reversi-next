@@ -1,3 +1,5 @@
+'use client';
+
 import { useSocket } from '@/app/games/useSocket';
 
 export default function GameHistory() {

@@ -28,6 +28,8 @@ interface SocketState {
    activeGames: ActiveGameInfo[];
    waitingGames: WaitingGameInfo[];
    recentGames: CompletedGameInfo[];
+   game: string | null;
+   gameType: 'active' | 'waiting' | 'replay' | 'not-found';
    boardState: ReversiBoardState;
    role: ReversiPlayer;
    playerA: PlayerName | null;
@@ -55,10 +57,16 @@ export const useSocket = create<SocketState>((set) => {
       });
    });
 
+   socket.on('join', (gameId) => {
+      set({ game: gameId });
+   });
+
    return {
       activeGames: [],
       waitingGames: [],
       recentGames: [],
+      game: null,
+      gameType: 'active',
       boardState: createNewBoard(),
       role: 1,
       playerA: null,
