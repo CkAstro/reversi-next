@@ -5,51 +5,31 @@ import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import GamePiece from '@/app/games/GamePiece';
 import { getStateFlips } from '@/lib/getStateFlips';
-import { validateMove } from '@/lib/validateMove';
 import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
 import { useSocket } from '@/app/games/useSocket';
 import GameDisplay from '@/app/games/GameDisplay';
 import GameHistory from '@/app/games/GameHistory';
 
 export default function Lobby() {
-   const [turn, setTurn] = useState<ReversiPlayer>(1);
-   // const [message, setMessage] = useState('');
+   const [turn, _setTurn] = useState<ReversiPlayer>(1);
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
    const [highlights, setHighlights] = useState<number[]>([]);
-   const [boardState, setBoardState] = useState<ReversiBoardState>(
+   const [boardState, _setBoardState] = useState<ReversiBoardState>(
       Array.from({ length: 64 }, () => null)
    );
 
    const activeGames = useSocket((s) => s.activeGames);
    const waitingGames = useSocket((s) => s.waitingGames);
-   // const recentGames = useSocket((s) => s.recentGames);
 
    useEffect(() => {
       setHighlights([]);
    }, [boardState]);
 
-   const setPlayerMessage = (type: 'invalid' | 'player1' | 'player2') => {
-      if (type === 'invalid') console.log('not your move');
-      else if (type === 'player1') console.log('player 1 turn');
-      else console.log('player 2 turn');
-   };
-
+   const send = useSocket((s) => s.send);
    const handleClick = (index: number) => {
       if (boardState[index] !== null) return;
 
-      const newState = validateMove(boardState, turn, index);
-      if (newState === null) {
-         setPlayerMessage('invalid');
-         return;
-      }
-
-      setTurn((prev) => {
-         const next = -prev as 1 | -1;
-         setPlayerMessage(next === 1 ? 'player1' : 'player2');
-
-         return next;
-      });
-      setBoardState(newState);
+      send('move', { square: index, role: turn });
    };
 
    const handlePointerEnter = (index: number) => {

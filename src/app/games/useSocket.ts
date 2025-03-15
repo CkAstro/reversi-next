@@ -9,6 +9,7 @@ import type {
    PlayerName,
    WaitingGameInfo,
    ClientSocket as ReversiSocket,
+   RequestPayload,
 } from '@/types/socket';
 import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
@@ -32,6 +33,10 @@ interface SocketState {
    playerA: PlayerName | null;
    playerB: PlayerName | null;
    observerCount: number;
+   send: <E extends keyof RequestPayload>(
+      event: E,
+      ...args: Parameters<RequestPayload[E]>
+   ) => void;
 }
 
 export const useSocket = create<SocketState>((set) => {
@@ -59,5 +64,8 @@ export const useSocket = create<SocketState>((set) => {
       playerA: null,
       playerB: null,
       observerCount: 0,
+      send: (event, ...request) => {
+         socket.emit(event, ...request);
+      },
    };
 });
