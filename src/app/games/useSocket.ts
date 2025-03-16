@@ -47,7 +47,15 @@ export const useSocket = create<SocketState>((set) => {
       path: '/api/ws',
       auth: { key: authKey },
       addTrailingSlash: false,
+      reconnection: true,
    });
+   // const socket: ReversiSocket = io('ws://localhost:3000', {
+   //    auth: { key: authKey },
+   //    reconnection: true,
+   // });
+
+   socket.on('connect', () => console.log('connected'));
+   socket.on('disconnect', () => console.log('disconnected'));
 
    socket.on('init', ({ active, complete, waiting }) => {
       set({
@@ -73,6 +81,14 @@ export const useSocket = create<SocketState>((set) => {
       playerB: null,
       observerCount: 0,
       send: (event, ...request) => {
+         if (process.env.DEBUG === 'true')
+            console.log(
+               'sending event',
+               event,
+               '| socket status',
+               socket.connected
+            );
+
          socket.emit(event, ...request);
       },
    };
