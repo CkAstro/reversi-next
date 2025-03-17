@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { initConnection } from '@/lib/client/client';
+import { initConnection } from '@/lib/socket/initConnection';
 import { logger } from '@/lib/utils/logger';
 import path from 'path';
 import dotenv from 'dotenv';
