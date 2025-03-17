@@ -2,6 +2,7 @@
 
 import { useSocket } from '@/app/games/useSocket';
 import GameDisplay from '@/app/games/GameDisplay';
+import { useEffect } from 'react';
 
 const blankGame = {
    gameId: null as unknown as string,
@@ -12,6 +13,11 @@ const blankGame = {
 export default function Lobby() {
    const activeGames = useSocket((s) => s.activeGames);
    const waitingGames = useSocket((s) => s.waitingGames);
+   const send = useSocket((s) => s.send);
+
+   useEffect(() => {
+      send('get:games');
+   }, [send]);
 
    return (
       <div className="w-full h-full flex flex-col gap-2">

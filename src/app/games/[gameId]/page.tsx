@@ -20,7 +20,7 @@ export default function Page(props: { params: Promise<{ gameId: string }> }) {
          if (gameIdRef.current === gameId) return;
          gameIdRef.current = gameId;
 
-         send('boardState', gameId);
+         send('get:boardState', gameId);
       });
    }, [props, send]);
 

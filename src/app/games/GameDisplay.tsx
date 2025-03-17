@@ -8,13 +8,17 @@ interface GameDisplayProps {
    games: (WaitingGameInfo | ActiveGameInfo)[];
 }
 
-export default function GameDisplay({ title, type, games }: GameDisplayProps) {
+export default function GameDisplay({
+   title,
+   type,
+   games = [],
+}: GameDisplayProps) {
    const send = useSocket((s) => s.send);
 
    const handleClick = (gameId: string) => {
-      if (type === 'waiting') send('join', { gameId });
-      else if (type === 'active') send('observe', { gameId });
-      else send('create', { gameId: null });
+      if (type === 'waiting') send('game:join', gameId);
+      else if (type === 'active') send('game:observe', gameId);
+      else send('game:create');
    };
 
    return (

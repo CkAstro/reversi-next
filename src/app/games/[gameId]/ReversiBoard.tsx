@@ -35,15 +35,15 @@ const BoardPiece: React.FC<{
 export default function ReversiBoard() {
    const boardState = useSocket((s) => s.boardState);
    const send = useSocket((s) => s.send);
+   const gameId = useSocket((s) => s.game);
 
    const [highlights, setHighlights] = useState<number[]>([]);
-   const [turn, _setTurn] = useState<1 | -1>(1);
+   const role = useSocket((s) => s.role);
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
 
    const handleClick = (index: number) => {
-      if (boardState[index] !== null) return;
-
-      send('move', { square: index, role: turn });
+      if (boardState[index] !== null || gameId === null) return;
+      send('player:move', gameId, index);
    };
 
    const handlePointerEnter = (index: number) => {
@@ -51,7 +51,7 @@ export default function ReversiBoard() {
 
       if (boardState[index] !== null) return;
 
-      const flippedPieces = getStateFlips(boardState, turn, index);
+      const flippedPieces = getStateFlips(boardState, role, index);
       setHighlights(flippedPieces);
    };
 
@@ -61,22 +61,26 @@ export default function ReversiBoard() {
    };
 
    return (
-      <div className="p-4 bg-stone-800 grid grid-cols-8 select-none user-drag:none">
-         {boardState.map((piece, index) => (
-            <div
-               key={index}
-               className="relative w-11 h-11 bg-green-700 border-2 border-stone-800"
-               onClick={() => handleClick(index)}
-               onPointerEnter={() => handlePointerEnter(index)}
-               onPointerLeave={handlePointerLeave}
-            >
-               <Highlight highlight={highlights.includes(index)} />
-               <BoardPiece
-                  piece={piece}
-                  preview={mouseoverIndex === index ? turn : null}
-               />
-            </div>
-         ))}
+      <div className="flex flex-col">
+         <span>you are {role === 1 ? 'black' : 'white'}</span>
+
+         <div className="p-4 bg-stone-800 grid grid-cols-8 select-none user-drag:none">
+            {boardState.map((piece, index) => (
+               <div
+                  key={index}
+                  className="relative w-11 h-11 bg-green-700 border-2 border-stone-800"
+                  onClick={() => handleClick(index)}
+                  onPointerEnter={() => handlePointerEnter(index)}
+                  onPointerLeave={handlePointerLeave}
+               >
+                  <Highlight highlight={highlights.includes(index)} />
+                  <BoardPiece
+                     piece={piece}
+                     preview={mouseoverIndex === index ? role : null}
+                  />
+               </div>
+            ))}
+         </div>
       </div>
    );
 }

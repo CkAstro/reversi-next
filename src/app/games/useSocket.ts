@@ -9,7 +9,6 @@ import type {
    PlayerName,
    WaitingGameInfo,
    ClientSocket as ReversiSocket,
-   RequestPayload,
 } from '@/types/socket';
 import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
@@ -24,6 +23,19 @@ const getAuthKey = () => {
    return authKey;
 };
 
+const createSocket = () => {
+   const separateServer =
+      process.env.NEXT_PUBLIC_DEDICATED_SOCKET_SERVER === 'true';
+   const socketUrl = separateServer ? 'ws://localhost:3000' : undefined;
+   const path = separateServer ? undefined : '/api/ws';
+   return io(socketUrl, {
+      path,
+      auth: { key: getAuthKey() },
+      reconnection: true,
+      addTrailingSlash: separateServer,
+   });
+};
+
 interface SocketState {
    activeGames: ActiveGameInfo[];
    waitingGames: WaitingGameInfo[];
@@ -35,29 +47,18 @@ interface SocketState {
    playerA: PlayerName | null;
    playerB: PlayerName | null;
    observerCount: number;
-   send: <E extends keyof RequestPayload>(
-      event: E,
-      ...args: Parameters<RequestPayload[E]>
-   ) => void;
+   sub: ReversiSocket['on'];
+   unsub: ReversiSocket['off'];
+   send: ReversiSocket['emit'];
 }
 
 export const useSocket = create<SocketState>((set) => {
-   const authKey = getAuthKey();
-   const socket: ReversiSocket = io(undefined, {
-      path: '/api/ws',
-      auth: { key: authKey },
-      addTrailingSlash: false,
-      reconnection: true,
-   });
-   // const socket: ReversiSocket = io('ws://localhost:3000', {
-   //    auth: { key: authKey },
-   //    reconnection: true,
-   // });
+   const socket: ReversiSocket = createSocket();
+   socket.on('connect', () => console.log('connected to server'));
+   socket.on('disconnect', () => console.log('disconnected from server'));
 
-   socket.on('connect', () => console.log('connected'));
-   socket.on('disconnect', () => console.log('disconnected'));
-
-   socket.on('init', ({ active, complete, waiting }) => {
+   socket.on('get:games', ({ active, complete, waiting }) => {
+      console.log('waiting', waiting);
       set({
          activeGames: active,
          waitingGames: waiting,
@@ -65,9 +66,16 @@ export const useSocket = create<SocketState>((set) => {
       });
    });
 
-   socket.on('join', (gameId) => {
+   socket.on('game:join', (gameId) => {
       set({ game: gameId });
    });
+
+   socket.on('server:message', (message, error) => {
+      if (error) console.warn(`received error from server: ${message}`);
+      else console.log(`received message from server: ${message}`);
+   });
+
+   socket.on('get:boardState', (boardState) => set({ boardState }));
 
    return {
       activeGames: [],
@@ -80,8 +88,14 @@ export const useSocket = create<SocketState>((set) => {
       playerA: null,
       playerB: null,
       observerCount: 0,
+      sub: (event, action) => {
+         return socket.on(event, action);
+      },
+      unsub: (event, action) => {
+         return socket.off(event, action);
+      },
       send: (event, ...request) => {
-         if (process.env.DEBUG === 'true')
+         if (process.env.NEXT_PUBLIC_DEBUG === 'true')
             console.log(
                'sending event',
                event,
@@ -89,7 +103,7 @@ export const useSocket = create<SocketState>((set) => {
                socket.connected
             );
 
-         socket.emit(event, ...request);
+         return socket.emit(event, ...request);
       },
    };
 });

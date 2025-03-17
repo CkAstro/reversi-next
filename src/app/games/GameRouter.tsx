@@ -5,12 +5,17 @@ import {
    // usePathname,
    useRouter,
 } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import {
+   useEffect,
+   // useRef
+} from 'react';
 
 export default function GameRouter() {
    const router = useRouter();
-   const gameId = useSocket((s) => s.game);
-   const previousRoute = useRef(gameId);
+   // const gameId = useSocket((s) => s.game);
+   const sub = useSocket((s) => s.sub);
+   const unsub = useSocket((s) => s.unsub);
+   // const previousRoute = useRef<string | null>(null);
 
    // const pathname = usePathname();
    // useEffect(() => {
@@ -19,12 +24,20 @@ export default function GameRouter() {
 
    // when gameId
    useEffect(() => {
-      if (gameId === previousRoute.current) return;
-      previousRoute.current = gameId;
+      const setRoute = (gameId: string | null) => {
+         router.push(`/games/${gameId ?? ''}`);
+      };
 
-      if (gameId === null) return;
-      router.push(`/games/${gameId}`);
-   }, [gameId, router]);
+      sub('game:join', setRoute);
+      return () => {
+         unsub('game:join', setRoute);
+      };
+      // if (gameId === previousRoute.current) return;
+      // previousRoute.current = gameId;
+
+      // if (gameId === null) return;
+      // router.push(`/games/${gameId}`);
+   }, [sub, unsub, router]);
 
    return null;
 }
