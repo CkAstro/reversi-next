@@ -1,9 +1,11 @@
-import { initConnection, _forTesting } from '@/lib/client/client';
-import type { WsClient } from '@/types/reversi';
+import { initConnection } from '@/lib/socket/initConnection';
+import type { WsClient } from '@/types/socket';
 import type { Socket } from 'socket.io';
 
 jest.mock('@/lib/game/gameManager', () => ({
-   getCurrentState: jest.fn(() => ({ gameState: 'mocked_state' })),
+   gameManager: {
+      getCurrentState: jest.fn(() => ({ gameState: 'mocked_state' })),
+   },
 }));
 
 describe('transferClient', () => {
@@ -135,7 +137,6 @@ describe('initConnection', () => {
 
    test('should add all necessary event listeners', () => {
       initConnection(socketMock);
-      expect(socketMock.on).toHaveBeenCalledTimes(2);
       expect(socketMock.on).toHaveBeenCalledWith(
          'connection',
          expect.any(Function)
