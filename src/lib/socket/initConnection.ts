@@ -1,3 +1,4 @@
+import { clientManager } from '@/lib/client/clientManager';
 import { gameCreate } from '@/lib/socket/gameCreate';
 import { gameJoin } from '@/lib/socket/gameJoin';
 import { gameLeave } from '@/lib/socket/gameLeave';
@@ -9,9 +10,11 @@ import { logger } from '@/lib/utils/logger';
 import type { ServerSocket } from '@/types/socket';
 
 export const initConnection = (socket: ServerSocket) => {
-   logger(`client ${socket.id} connected.`);
+   const client = clientManager.registerClient(socket);
+
+   logger(`client ${client.playerId} connected.`);
    socket.on('error', (error) => {
-      logger(`client ${socket.id} encountered error: ${error.message}`);
+      logger(`client ${client.playerId} encountered error: ${error.message}`);
       socket.emit(
          'server:message',
          'socket connection encountered an error.',
@@ -20,16 +23,16 @@ export const initConnection = (socket: ServerSocket) => {
    });
 
    socket.on('disconnect', (reason) => {
-      logger(`client ${socket.id} disconnected with reason: ${reason}`);
+      logger(`client ${client.playerId} disconnected with reason: ${reason}`);
    });
 
-   socket.on('game:join', gameJoin(socket));
-   socket.on('game:leave', gameLeave(socket));
-   socket.on('game:create', gameCreate(socket));
-   socket.on('game:observe', gameObserve(socket));
+   socket.on('game:join', gameJoin(client));
+   socket.on('game:leave', gameLeave(client));
+   socket.on('game:create', gameCreate(client));
+   socket.on('game:observe', gameObserve(client));
 
-   socket.on('player:move', playerMove(socket));
+   socket.on('player:move', playerMove(client));
 
-   socket.on('get:games', getGames(socket));
-   socket.on('get:boardState', getBoardState(socket));
+   socket.on('get:games', getGames(client));
+   socket.on('get:boardState', getBoardState(client));
 };

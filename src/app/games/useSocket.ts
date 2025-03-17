@@ -10,7 +10,7 @@ import type {
    WaitingGameInfo,
    ClientSocket as ReversiSocket,
 } from '@/types/socket';
-import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
+import type { Reversi } from '@/types/reversi';
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
 
 const getAuthKey = () => {
@@ -42,8 +42,8 @@ interface SocketState {
    recentGames: CompletedGameInfo[];
    game: string | null;
    gameType: 'active' | 'waiting' | 'replay' | 'not-found';
-   boardState: ReversiBoardState;
-   role: ReversiPlayer;
+   boardState: Reversi['BoardState'];
+   role: Reversi['PlayerRole'];
    playerA: PlayerName | null;
    playerB: PlayerName | null;
    observerCount: number;
