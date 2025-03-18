@@ -77,35 +77,44 @@ export const upgradeActiveGame = (gameId: Reversi['GameId']): boolean => {
  * @param page page of games
  */
 export const getActiveGames = (count = 10, page = 0) =>
-   activeGames.slice(count * page, count * (page + 1));
+   page < 0 ? [] : activeGames.slice(count * page, count * (page + 1));
 
 /** returns paginated list of complete games
  * @param count number of games to return
  * @param page page of games
  */
 export const getPendingGames = (count = 10, page = 0) =>
-   pendingGames.slice(count * page, count * (page + 1));
+   page < 0 ? [] : pendingGames.slice(count * page, count * (page + 1));
 
 /** returns paginated list of complete games
  * @param count number of games to return
  * @param page page of games
  */
 export const getCompletedGames = (count = 10, page = 0) =>
-   completedGames.slice(count * page, count * (page + 1));
+   page < 0 ? [] : completedGames.slice(count * page, count * (page + 1));
 
 /** save game to db
  * @param gameId id of game
  */
-export const saveGame = (_gameId: Reversi['GameId']) => undefined;
+export const saveGame = (_gameId: Reversi['GameId']) => {
+   throw new Error('not available');
+};
 
 /** returns lobby information
- * @returns active, waiting, complete games
+ * @returns active, pending, complete games
  */
-export const getLobby = () => undefined;
+export const getLobby = () => {
+   return {
+      pending: getPendingGames(10),
+      active: getActiveGames(10),
+      completed: getCompletedGames(10),
+   };
+};
 
 export const _forTesting = {
    gameCache,
    pendingGames,
    activeGames,
    completedGames,
+   MAX_COMPLETED,
 };

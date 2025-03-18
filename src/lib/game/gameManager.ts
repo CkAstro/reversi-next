@@ -11,7 +11,7 @@ import {
    getActiveGames,
    getCompletedGames,
    getLobby,
-   getWaitingGames,
+   getPendingGames,
    saveGame,
 } from '@/lib/game/gameCache';
 
@@ -26,7 +26,7 @@ export const gameManager = {
    getOpponent,
    getParticipants,
    getActiveGames,
-   getWaitingGames,
+   getPendingGames,
    getCompletedGames,
    saveGame,
    getLobby,

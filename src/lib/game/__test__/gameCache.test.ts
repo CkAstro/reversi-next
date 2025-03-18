@@ -1,4 +1,3 @@
-import { Reversi } from '@/types/reversi';
 import {
    getGame,
    addPendingGame,
@@ -12,6 +11,7 @@ import {
    getLobby,
    _forTesting,
 } from '../gameCache';
+import type { Reversi } from '@/types/reversi';
 
 describe('getGame', () => {
    const { gameCache } = _forTesting;
@@ -191,25 +191,194 @@ describe('upgradeActiveGame', () => {
       expect(completedGames).toStrictEqual(['testGame', 'game1']);
    });
 
-   // test('upgrade ')
+   test('upgrade removes tail of list if it is over max cached', () => {
+      const { MAX_COMPLETED } = _forTesting;
+      activeGames.push('testGame');
+      completedGames.push(
+         ...Array.from({ length: MAX_COMPLETED }, (_, i) => `game ${i}`)
+      );
+
+      const expectedLastItem = `game ${MAX_COMPLETED - 2}`;
+
+      upgradeActiveGame('testGame');
+      expect(completedGames.length).toBe(MAX_COMPLETED);
+      expect(completedGames[0]).toBe('testGame');
+      expect(completedGames[MAX_COMPLETED - 1]).toBe(expectedLastItem);
+   });
 });
 
 describe('getActiveGames', () => {
-   //
+   const { activeGames } = _forTesting;
+   beforeEach(() => {
+      while (activeGames.length > 0) activeGames.pop();
+      activeGames.push(...Array.from({ length: 25 }, (_, i) => `game ${i}`));
+   });
+
+   test('active games returns full array if less than count', () => {
+      expect(getActiveGames(30)).toStrictEqual(activeGames);
+   });
+
+   test('active games returns count if greater than count', () => {
+      expect(getActiveGames(10)).toStrictEqual(activeGames.slice(0, 10));
+   });
+
+   test('pagination functions', () => {
+      const count = 10;
+      const page = 1;
+      const start = count * page;
+      expect(getActiveGames(count, page)).toStrictEqual(
+         Array.from({ length: count }, (_, i) => `game ${i + start}`)
+      );
+   });
+
+   test('last page returns partial', () => {
+      expect(getActiveGames(10, 2)).toStrictEqual(
+         Array.from({ length: 5 }, (_, i) => `game ${i + 20}`)
+      );
+   });
+
+   test('extra pages returns empty array', () => {
+      expect(getActiveGames(10, 3)).toStrictEqual([]);
+   });
+
+   test('negative page returns empty array', () => {
+      expect(getActiveGames(10, -1)).toStrictEqual([]);
+   });
+
+   test('request on empty array returns empty array', () => {
+      while (activeGames.length > 0) activeGames.pop();
+      expect(getActiveGames(10)).toStrictEqual([]);
+   });
 });
 
 describe('getPendingGames', () => {
-   //
+   const { pendingGames } = _forTesting;
+   beforeEach(() => {
+      while (pendingGames.length > 0) pendingGames.pop();
+      pendingGames.push(...Array.from({ length: 25 }, (_, i) => `game ${i}`));
+   });
+
+   test('active games returns full array if less than count', () => {
+      expect(getPendingGames(30)).toStrictEqual(pendingGames);
+   });
+
+   test('active games returns count if greater than count', () => {
+      expect(getPendingGames(10)).toStrictEqual(pendingGames.slice(0, 10));
+   });
+
+   test('pagination functions', () => {
+      const count = 10;
+      const page = 1;
+      const start = count * page;
+      expect(getPendingGames(count, page)).toStrictEqual(
+         Array.from({ length: count }, (_, i) => `game ${i + start}`)
+      );
+   });
+
+   test('last page returns partial', () => {
+      expect(getPendingGames(10, 2)).toStrictEqual(
+         Array.from({ length: 5 }, (_, i) => `game ${i + 20}`)
+      );
+   });
+
+   test('extra pages returns empty array', () => {
+      expect(getPendingGames(10, 3)).toStrictEqual([]);
+   });
+
+   test('negative page returns empty array', () => {
+      expect(getPendingGames(10, -1)).toStrictEqual([]);
+   });
+
+   test('request on empty array returns empty array', () => {
+      while (pendingGames.length > 0) pendingGames.pop();
+      expect(getPendingGames(10)).toStrictEqual([]);
+   });
 });
 
 describe('getCompletedGames', () => {
-   //
+   const { completedGames } = _forTesting;
+   beforeEach(() => {
+      while (completedGames.length > 0) completedGames.pop();
+      completedGames.push(...Array.from({ length: 25 }, (_, i) => `game ${i}`));
+   });
+
+   test('active games returns full array if less than count', () => {
+      expect(getCompletedGames(30)).toStrictEqual(completedGames);
+   });
+
+   test('active games returns count if greater than count', () => {
+      expect(getCompletedGames(10)).toStrictEqual(completedGames.slice(0, 10));
+   });
+
+   test('pagination functions', () => {
+      const count = 10;
+      const page = 1;
+      const start = count * page;
+      expect(getCompletedGames(count, page)).toStrictEqual(
+         Array.from({ length: count }, (_, i) => `game ${i + start}`)
+      );
+   });
+
+   test('last page returns partial', () => {
+      expect(getCompletedGames(10, 2)).toStrictEqual(
+         Array.from({ length: 5 }, (_, i) => `game ${i + 20}`)
+      );
+   });
+
+   test('extra pages returns empty array', () => {
+      expect(getCompletedGames(10, 3)).toStrictEqual([]);
+   });
+
+   test('negative page returns empty array', () => {
+      expect(getCompletedGames(10, -1)).toStrictEqual([]);
+   });
+
+   test('request on empty array returns empty array', () => {
+      while (completedGames.length > 0) completedGames.pop();
+      expect(getCompletedGames(10)).toStrictEqual([]);
+   });
 });
 
 describe('saveGame', () => {
-   //
+   test('reminder to add tests', () => {
+      expect(() => saveGame('testGame')).toThrow('not available');
+   });
 });
 
 describe('getLobby', () => {
-   //
+   const { pendingGames, activeGames, completedGames } = _forTesting;
+
+   beforeEach(() => {
+      while (pendingGames.length > 0) pendingGames.pop();
+      while (activeGames.length > 0) activeGames.pop();
+      while (completedGames.length > 0) completedGames.pop();
+   });
+
+   test('returns 10 of each', () => {
+      pendingGames.push(
+         ...Array.from({ length: 11 }, (_, i) => `pending ${i}`)
+      );
+      activeGames.push(...Array.from({ length: 11 }, (_, i) => `active ${i}`));
+      completedGames.push(
+         ...Array.from({ length: 11 }, (_, i) => `completed ${i}`)
+      );
+
+      const { pending, active, completed } = getLobby();
+      expect(pending.length).toBe(10);
+      expect(active.length).toBe(10);
+      expect(completed.length).toBe(10);
+   });
+
+   test('functions correctly with less entries', () => {
+      pendingGames.push(...Array.from({ length: 5 }, (_, i) => `pending ${i}`));
+      activeGames.push(...Array.from({ length: 5 }, (_, i) => `active ${i}`));
+      completedGames.push(
+         ...Array.from({ length: 5 }, (_, i) => `completed ${i}`)
+      );
+
+      const { pending, active, completed } = getLobby();
+      expect(pending.length).toBe(5);
+      expect(active.length).toBe(5);
+      expect(completed.length).toBe(5);
+   });
 });
