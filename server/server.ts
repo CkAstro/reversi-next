@@ -8,7 +8,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 if (process.env.DEBUG === 'true') console.log('running in DEBUG mode');
 
-const io = new Server(3000, {
+const io = new Server(3001, {
    cors: {
       origin: '*',
    },
@@ -28,4 +28,4 @@ io.on('connection', (socket) => {
    initConnection(socket);
 });
 
-logger('socket server running on ws://localhost:3000');
+logger('socket server running on ws://localhost:3001');

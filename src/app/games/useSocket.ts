@@ -7,7 +7,7 @@ import type {
    ActiveGameInfo,
    CompletedGameInfo,
    PlayerName,
-   WaitingGameInfo,
+   PendingGameInfo,
    ClientSocket as ReversiSocket,
 } from '@/types/socket';
 import type { Reversi } from '@/types/reversi';
@@ -26,7 +26,7 @@ const getAuthKey = () => {
 const createSocket = () => {
    const separateServer =
       process.env.NEXT_PUBLIC_DEDICATED_SOCKET_SERVER === 'true';
-   const socketUrl = separateServer ? 'ws://localhost:3000' : undefined;
+   const socketUrl = separateServer ? 'ws://localhost:3001' : undefined;
    const path = separateServer ? undefined : '/api/ws';
    return io(socketUrl, {
       path,
@@ -38,7 +38,7 @@ const createSocket = () => {
 
 interface SocketState {
    activeGames: ActiveGameInfo[];
-   waitingGames: WaitingGameInfo[];
+   waitingGames: PendingGameInfo[];
    recentGames: CompletedGameInfo[];
    game: string | null;
    gameType: 'active' | 'waiting' | 'replay' | 'not-found';
@@ -57,11 +57,10 @@ export const useSocket = create<SocketState>((set) => {
    socket.on('connect', () => console.log('connected to server'));
    socket.on('disconnect', () => console.log('disconnected from server'));
 
-   socket.on('get:games', ({ active, complete, waiting }) => {
-      console.log('waiting', waiting);
+   socket.on('get:games', ({ active, complete, pending }) => {
       set({
          activeGames: active,
-         waitingGames: waiting,
+         waitingGames: pending,
          recentGames: complete,
       });
    });

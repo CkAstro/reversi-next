@@ -37,7 +37,12 @@ const common = () => ({
    ],
    resolve: {
       alias: {
-         '@': path.resolve(root, '../src'),
+         '@': path.resolve(
+            root,
+            process.env.NEXT_PUBLIC_DEDICATED_SOCKET_SERVER === 'true'
+               ? './src'
+               : '../src'
+         ),
       },
       extensions: ['.js', '.ts', '.json'],
    },

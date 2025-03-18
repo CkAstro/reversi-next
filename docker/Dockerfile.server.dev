@@ -1,0 +1,11 @@
+FROM node:20-alpine AS build
+RUN pwd
+WORKDIR /usr/src/app
+
+COPY ./server/server.ts .
+COPY ./server/package.json .
+COPY ./server/tsconfig.json .
+COPY ./server/webpack.config.cjs .
+
+RUN npm install
+CMD ["npm", "run", "dev"]

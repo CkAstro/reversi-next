@@ -1,6 +1,6 @@
 {
    "version": "0.2",
-   "words": ["reversi", "kolb", "unsub"],
+   "words": ["reversi", "kolb", "unsub", "preconfigured"],
    "ignorePaths": ["package.json", "package-lock.json"],
    "useGitignore": true,
    "cache": {

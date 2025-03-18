@@ -1,7 +1,6 @@
 import type { Reversi } from '@/types/reversi';
 import type { Socket as SocketClient } from 'socket.io-client';
 import type { Socket as SocketServer } from 'socket.io';
-import type { Socket } from 'socket.io';
 
 export type PlayerName = string;
 export interface ActiveGameInfo {
@@ -21,7 +20,7 @@ export interface CompletedGameInfo {
    playerA: GamePlayerInfo;
    playerB: GamePlayerInfo;
 }
-export interface WaitingGameInfo {
+export interface PendingGameInfo {
    gameId: Reversi['GameId'];
    playerA: PlayerName;
    playerB: null;
@@ -40,7 +39,7 @@ export interface RequestPayload {
 export interface GameInfoResponse {
    active: ActiveGameInfo[];
    complete: CompletedGameInfo[];
-   waiting: WaitingGameInfo[];
+   pending: PendingGameInfo[];
 }
 
 export interface ResponsePayload {
@@ -63,11 +62,11 @@ export type SocketHandler = {
    [E in keyof RequestPayload]: (client: WsClient) => RequestPayload[E];
 };
 
-// ---
+// --- Client Construction --- //
 
 interface SocketInformation {
    playerId: string;
-   socket: Socket;
+   socket: ServerSocket;
    authKey: string | null;
    lastActive: number;
 }
