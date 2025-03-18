@@ -29,7 +29,7 @@ const config: Config = {
       '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
       '@/(.*)$': '<rootDir>/src/$1',
    },
-   // setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
+   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
    // globalTeardown: '<rootDir>/test/teardown.ts',
    fakeTimers: {
       enableGlobally: true,

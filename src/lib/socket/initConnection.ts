@@ -1,4 +1,4 @@
-import { clientManager } from '@/lib/client/clientManager';
+import { clientManager } from '@/lib/socket/clientManager';
 import { gameCreate } from '@/lib/socket/gameCreate';
 import { gameJoin } from '@/lib/socket/gameJoin';
 import { gameLeave } from '@/lib/socket/gameLeave';
