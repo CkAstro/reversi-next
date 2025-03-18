@@ -1,3 +1,4 @@
+import { testGames } from '@/lib/game/testGames';
 import type { Reversi } from '@/types/reversi';
 
 const MAX_COMPLETED = 10;
@@ -76,21 +77,21 @@ export const upgradeActiveGame = (gameId: Reversi['GameId']): boolean => {
  * @param count number of games to return
  * @param page page of games
  */
-export const getActiveGames = (count = 10, page = 0) =>
+export const getActiveGameIds = (count = 10, page = 0) =>
    page < 0 ? [] : activeGames.slice(count * page, count * (page + 1));
 
 /** returns paginated list of complete games
  * @param count number of games to return
  * @param page page of games
  */
-export const getPendingGames = (count = 10, page = 0) =>
+export const getPendingGameIds = (count = 10, page = 0) =>
    page < 0 ? [] : pendingGames.slice(count * page, count * (page + 1));
 
 /** returns paginated list of complete games
  * @param count number of games to return
  * @param page page of games
  */
-export const getCompletedGames = (count = 10, page = 0) =>
+export const getCompletedGameIds = (count = 10, page = 0) =>
    page < 0 ? [] : completedGames.slice(count * page, count * (page + 1));
 
 /** save game to db
@@ -104,11 +105,11 @@ export const saveGame = (_gameId: Reversi['GameId']) => {
  * @returns active, pending, complete games
  */
 export const getLobby = () => {
-   return {
-      pending: getPendingGames(10),
-      active: getActiveGames(10),
-      completed: getCompletedGames(10),
-   };
+   // const pendingIds = getPendingGameIds(10);
+   // const activeIds = getActiveGameIds(10);
+   // const completeIds = getCompletedGameIds(10);
+
+   return testGames;
 };
 
 export const _forTesting = {

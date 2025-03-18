@@ -1,19 +1,34 @@
 import { getRandomId } from '@/lib/utils/getRandomId';
 import type { GameInfoResponse } from '@/types/socket';
 
+const firstPlayerArray = ['Player A', 'Player 1', 'Player N', 'Test Player'];
+const secondPlayerArray = [
+   'Player B',
+   'Player 2',
+   'Player M',
+   'Another Player',
+];
+
+const randomFirstPlayer = () =>
+   firstPlayerArray[Math.floor(firstPlayerArray.length * Math.random())];
+const randomSecondPlayer = () =>
+   secondPlayerArray[Math.floor(secondPlayerArray.length * Math.random())];
+const randomPlayer = () =>
+   Math.random() < 0.5 ? randomFirstPlayer() : randomSecondPlayer();
+
 const active: GameInfoResponse['active'] = Array.from({ length: 8 }, () => ({
    gameId: getRandomId(),
-   playerA: ['Player A', 'Player 1', 'Player N', 'Test Player'][
-      Math.floor(4 * Math.random())
-   ],
-   playerB: ['Player B', 'Player 2', 'Player M', 'Another Player'][
-      Math.floor(4 * Math.random())
-   ],
+   playerA: randomFirstPlayer(),
+   playerB: randomSecondPlayer(),
    observerCount: Math.floor(5 * Math.random()),
 }));
 
-const waiting: GameInfoResponse['waiting'] = [
-   { gameId: getRandomId(), playerA: 'Player A', playerB: null },
+const pending: GameInfoResponse['pending'] = [
+   {
+      gameId: getRandomId(),
+      playerA: randomPlayer(),
+      playerB: null,
+   },
 ];
 
 const complete: GameInfoResponse['complete'] = Array.from(
@@ -23,16 +38,12 @@ const complete: GameInfoResponse['complete'] = Array.from(
       return {
          gameId: getRandomId(),
          playerA: {
-            name: ['Player A', 'Player 1', 'Player N', 'Test Player'][
-               Math.floor(4 * Math.random())
-            ],
+            name: randomFirstPlayer(),
             role: 1,
             score: halfScore,
          },
          playerB: {
-            name: ['Player B', 'Player 2', 'Player M', 'Another Player'][
-               Math.floor(4 * Math.random())
-            ],
+            name: randomSecondPlayer(),
             role: -1,
             score: 64 - halfScore,
          },
@@ -41,7 +52,7 @@ const complete: GameInfoResponse['complete'] = Array.from(
 );
 
 export const testGames = {
-   waiting,
+   pending,
    active,
    complete,
 };

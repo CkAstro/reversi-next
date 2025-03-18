@@ -23,7 +23,7 @@ export interface CompletedGameInfo {
 export interface PendingGameInfo {
    gameId: Reversi['GameId'];
    playerA: PlayerName;
-   playerB: null;
+   playerB: PlayerName | null;
 }
 
 export interface RequestPayload {
