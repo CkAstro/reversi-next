@@ -6,8 +6,8 @@ import type { Client } from '@/lib/client/Client';
 export type PlayerName = string;
 export interface ActiveGameInfo {
    gameId: string;
-   playerA: PlayerName;
-   playerB: PlayerName;
+   playerA: Reversi['Username'];
+   playerB: Reversi['Username'];
    observerCount: number;
 }
 
@@ -23,8 +23,7 @@ export interface CompletedGameInfo {
 }
 export interface PendingGameInfo {
    gameId: Reversi['GameId'];
-   playerA: PlayerName;
-   playerB: PlayerName | null;
+   player: Reversi['Username'];
 }
 
 export interface RequestPayload {
@@ -77,17 +76,4 @@ export type SocketHandler = {
 };
 
 // --- Client Construction --- //
-type AuthKey = string;
 export type ClientStatus = 'active' | 'observing' | 'idle';
-
-export interface WsClient {
-   playerId: Reversi['PlayerId'];
-   username: Reversi['Username'];
-   authKey: AuthKey;
-   lastActive: number;
-   currentGameId: Reversi['GameId'] | null;
-   currentRole: Reversi['Role'];
-   opponentId: Reversi['PlayerId'] | null;
-   status: ClientStatus;
-   socket: ServerSocket;
-}

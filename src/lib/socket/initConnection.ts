@@ -8,6 +8,7 @@ import { logger } from '@/lib/utils/logger';
 import type { ServerSocket } from '@/types/socket';
 import { playerMove } from '@/lib/socket/playerMove';
 import { getBoardState } from '@/lib/socket.old/getBoardState';
+import { getGames } from '@/lib/socket/getGames';
 
 export const initConnection = (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
@@ -35,6 +36,6 @@ export const initConnection = (socket: ServerSocket) => {
 
    socket.on('player:move', playerMove(client));
 
-   socket.on('get:games', () => undefined);
+   socket.on('get:games', getGames(client));
    socket.on('get:boardState', getBoardState(client));
 };

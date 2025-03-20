@@ -96,6 +96,10 @@ class Game {
       return this.observers.values();
    }
 
+   public get observerCount() {
+      return this.observers.size;
+   }
+
    public addPlayer(client: Client) {
       const currentRole = this.getRoleById(client.playerId);
       if (currentRole !== null) return this.assignToGame(client, currentRole);
@@ -133,6 +137,17 @@ class Game {
       if (this.playerB !== null) clients.unshift(this.playerB);
       if (this.playerA !== null) clients.unshift(this.playerA);
       return clients;
+   }
+
+   public getPlayers(): [
+      Reversi['Username'] | null,
+      Reversi['Username'] | null
+   ] {
+      return [this.playerA?.username ?? null, this.playerB?.username ?? null];
+   }
+
+   public isComplete() {
+      return this.status === 'complete';
    }
 }
 

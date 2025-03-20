@@ -1,13 +1,48 @@
 import type { Game } from '@/lib/game/Game';
+import { logger } from '@/lib/utils/logger';
 import type { Reversi } from '@/types/reversi';
+import type {
+   ActiveGameInfo,
+   CompletedGameInfo,
+   PendingGameInfo,
+} from '@/types/socket';
 
-type GameCache = Record<Reversi['GameId'], Game>;
-const gameCache: GameCache = {};
+class OrderedCache<K, V> {
+   private map: Map<K, V> = new Map<K, V>();
+   private keys: K[] = [];
 
-type GameList = Reversi['GameId'][];
-const pendingGames: GameList = [];
-// const activeGames: GameList = [];
-// const completedGames: GameList = [];
+   constructor() {}
+
+   public insert(key: K, value: V) {
+      if (this.map.has(key)) this.keys.filter((k) => k !== key);
+      this.keys.unshift(key);
+      this.map.set(key, value);
+   }
+
+   public remove(key: K): V | null {
+      const value = this.map.get(key);
+
+      this.keys.filter((k) => k !== key);
+      this.map.delete(key);
+
+      return value ?? null;
+   }
+
+   public getValue(key: K): V | null {
+      return this.map.get(key) ?? null;
+   }
+
+   public getRange(count: number, page: number) {
+      const keys =
+         page < 0 ? [] : this.keys.slice(count * page, count * (page + 1));
+      return keys.map((key) => this.map.get(key)) as V[];
+   }
+}
+
+const gameCache = new OrderedCache<Reversi['GameId'], Game>();
+const pendingCache = new OrderedCache<Reversi['GameId'], PendingGameInfo>();
+const activeCache = new OrderedCache<Reversi['GameId'], ActiveGameInfo>();
+const completedCache = new OrderedCache<Reversi['GameId'], CompletedGameInfo>();
 
 /** Adds a new game to cache.
  * @param game game to add
@@ -15,8 +50,11 @@ const pendingGames: GameList = [];
 export const addPendingGame = (game: Game) => {
    const gameId = game.gameId;
 
-   gameCache[gameId] = game;
-   pendingGames.unshift(gameId);
+   gameCache.insert(gameId, game);
+
+   const [playerA, playerB] = game.getPlayers();
+   const player = playerA ?? playerB ?? 'unknown';
+   pendingCache.insert(gameId, { gameId, player });
 };
 
 /** Deletes a pending game from cache. If the game is
@@ -24,14 +62,79 @@ export const addPendingGame = (game: Game) => {
  * @param gameId id of game
  */
 export const deletePendingGame = (gameId: Reversi['GameId']) => {
-   const gameIndex = pendingGames.indexOf(gameId);
-   if (gameIndex === -1) return;
-
-   pendingGames.splice(gameIndex, 1);
-   delete gameCache[gameId];
+   if (pendingCache.remove(gameId) === null) return;
+   gameCache.remove(gameId);
 };
 
-export const getGame = (gameId: Reversi['GameId']) => {
-   if (gameId in gameCache) return gameCache[gameId];
-   return null;
+/** upgrade game status from pending to active
+ * @param gameId id of game to upgrade
+ */
+export const upgradePendingGame = (gameId: Reversi['GameId']) => {
+   if (pendingCache.remove(gameId) === null) return;
+
+   const game = gameCache.getValue(gameId);
+   if (game === null) return;
+   const [playerA, playerB] = game.getPlayers();
+   if (playerA === null || playerB === null)
+      return logger(
+         `attempted to upgrade game ${gameId} to active, but one or more players were not found.`
+      );
+
+   const observerCount = game.observerCount;
+   activeCache.insert(gameId, { gameId, playerA, playerB, observerCount });
 };
+
+/** upgrade game status from active to completed
+ * @param gameId id of game to upgrade
+ */
+export const upgradeActiveGame = (gameId: Reversi['GameId']) => {
+   if (activeCache.remove(gameId) === null) return;
+
+   const game = gameCache.getValue(gameId);
+   if (game === null) return;
+
+   const [playerA, playerB] = game.getPlayers();
+   if (playerA === null || playerB === null)
+      return logger(
+         `attempted to upgrade game ${gameId} to complete, but one or more players were not found.`
+      );
+   const scores = [0, 0];
+   game.getBoardState().forEach((value) => {
+      if (value === 1) scores[0]++;
+      else if (value === -1) scores[1]++;
+   });
+
+   completedCache.insert(gameId, {
+      gameId,
+      playerA: { name: playerA, role: 1, score: scores[0] },
+      playerB: { name: playerB, role: -1, score: scores[1] },
+   });
+};
+
+/** get game from cache
+ * @param gameId id of game
+ * @returns Game object or null if game is not found
+ */
+export const getGame = (gameId: Reversi['GameId']) =>
+   gameCache.getValue(gameId);
+
+/** get paginated list of pending games
+ * @param count number of games to return
+ * @param page page of games
+ */
+export const getPendingGames = (count = 10, page = 0): PendingGameInfo[] =>
+   pendingCache.getRange(count, page);
+
+/** get paginated list of active games
+ * @param count number of games to return
+ * @param page page of games
+ */
+export const getActiveGames = (count = 10, page = 0): ActiveGameInfo[] =>
+   activeCache.getRange(count, page);
+
+/** get paginated list of completed games
+ * @param count number of games to return
+ * @param page page of games
+ */
+export const getCompletedGames = (count = 10, page = 0): CompletedGameInfo[] =>
+   completedCache.getRange(count, page);
