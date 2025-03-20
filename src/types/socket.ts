@@ -45,6 +45,7 @@ export interface GameInfoResponse {
 
 export type ServerError =
    | 'SOCKET_ERROR'
+   | 'SERVER_ERROR'
    | 'GAME_NOT_FOUND'
    | 'GAME_FULL'
    | 'INVALID_MOVE';

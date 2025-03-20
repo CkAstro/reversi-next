@@ -36,32 +36,40 @@ class Game {
       this.assignToGame(client, playerRole);
    }
 
-   private assignToGame(client: Client, role: Reversi['Role']) {
+   private assignToGame(
+      client: Client,
+      role: Reversi['Role']
+   ): Reversi['Role'] {
       if (role === 1) this.playerA = client;
       else if (role === -1) this.playerB = client;
       else if (role === 0) this.observers.set(client.playerId, client);
 
-      const opponent =
-         role === 1 ? this.playerB : role === -1 ? this.playerA : null;
+      const opponent = this.getOpponentByRole(role);
 
       client.setGame(this);
       client.setCurrentRole(role);
       client.setOpponent(opponent);
       opponent?.setOpponent(client);
+
+      return role;
    }
 
-   private unassignFromGame(client: Client, role: Reversi['Role']) {
+   private unassignFromGame(
+      client: Client,
+      role: Reversi['Role']
+   ): Reversi['Role'] {
       if (role === 1) this.playerA = null;
       else if (role === -1) this.playerB = null;
       else if (role === 0) this.observers.delete(client.playerId);
 
-      const opponent =
-         role === 1 ? this.playerB : role === -1 ? this.playerA : null;
+      const opponent = this.getOpponentByRole(role);
 
       client.setGame(null);
       client.setCurrentRole(null);
       client.setOpponent(null);
       opponent?.setOpponent(null);
+
+      return role;
    }
 
    public get gameId() {
@@ -74,6 +82,18 @@ class Game {
 
    public get status() {
       return this.currentStatus;
+   }
+
+   public getOpponentByRole(role: Reversi['Role']): Client | null {
+      return role === 1 ? this.playerB : role === -1 ? this.playerA : null;
+   }
+
+   public getOpponentById(playerId: Reversi['PlayerId']): Client | null {
+      return this.playerA?.playerId === playerId
+         ? this.playerB
+         : this.playerB?.playerId === playerId
+         ? this.playerA
+         : null;
    }
 
    public getBoardState() {
@@ -105,14 +125,16 @@ class Game {
       if (currentRole !== null) return this.assignToGame(client, currentRole);
       if (this.playerA === null) return this.assignToGame(client, 1);
       if (this.playerB === null) return this.assignToGame(client, -1);
+
       this.addObserver(client);
+      return 0;
    }
 
-   public removePlayer(client: Client) {
+   public removePlayer(client: Client): Reversi['Role'] {
       const currentRole = this.getRoleById(client.playerId);
-      if (currentRole === null) return;
+      if (currentRole === null) return null;
 
-      this.unassignFromGame(client, currentRole);
+      return this.unassignFromGame(client, currentRole);
    }
 
    public placeGamePiece(role: Reversi['Role'], moveIndex: number): boolean {

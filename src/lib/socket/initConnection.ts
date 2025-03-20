@@ -32,7 +32,6 @@ export const initConnection = (socket: ServerSocket) => {
    socket.on('game:leave', gameLeave(client));
    socket.on('game:create', gameCreate(client));
    socket.on('game:observe', gameObserve(client));
-   socket.on('game:navigate', () => undefined);
 
    socket.on('player:move', playerMove(client));
 

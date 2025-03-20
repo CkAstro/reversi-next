@@ -1,29 +1,26 @@
-import { getGame } from '@/lib/game/gameCache';
+import { gameManager } from '@/lib/game/gameManager';
 import { logger } from '@/lib/utils/logger';
 import type { SocketHandler } from '@/types/socket';
 
 export const gameObserve: SocketHandler['game:observe'] =
    (client) => (gameId) => {
-      const game = getGame(gameId);
-      if (game === null) {
-         client.send(
-            'server:error',
-            'GAME_NOT_FOUND',
-            `Failed to join game ${gameId}.`
-         );
+      gameManager.observe(gameId, client, (error, role, _, observers) => {
+         if (error !== null) {
+            client.send('server:error', error, `Failed to join game ${gameId}`);
+            logger(
+               `failed to add player ${client.playerId} to game ${gameId} (GAME_NOT_FOUND)`
+            );
+            return;
+         }
+
+         client.send('game:join', gameId, role);
+         observers?.forEach((observer) => {
+            if (observer.playerId === client.playerId) return;
+            observer.send('game:playerJoin', client.username, role);
+         });
+
          logger(
-            `failed to add player ${client.playerId} to game ${gameId} (GAME_NOT_FOUND)`
+            `player ${client.playerId} joined game ${gameId} (role: ${role})`
          );
-         return;
-      }
-
-      game.addObserver(client);
-
-      client.send('game:join', gameId, 0);
-      client.opponent?.send('game:playerJoin', client.username, 0);
-      game.getObservers().forEach((observer) => {
-         observer.send('game:playerJoin', client.username, 0);
       });
-
-      logger(`player ${client.playerId} joined game ${gameId} (role: 0)`);
    };
