@@ -31,6 +31,7 @@ export interface RequestPayload {
    'game:leave': (gameId: Reversi['GameId']) => void;
    'game:create': () => void;
    'game:observe': (gameId: Reversi['GameId']) => void;
+   'game:navigate': (gameId: Reversi['GameId'] | null) => void;
    'player:move': (gameId: Reversi['GameId'], moveIndex: number) => void;
    'get:boardState': (gameId: Reversi['GameId']) => void;
    'get:games': () => void;
@@ -42,18 +43,24 @@ export interface GameInfoResponse {
    pending: PendingGameInfo[];
 }
 
+export const serverErrors = { GAME_NOT_FOUND: 0 };
+export type ServerError = keyof typeof serverErrors;
+
 export interface ResponsePayload {
    'get:games': (response: GameInfoResponse) => void;
    'get:boardState': (boardState: Reversi['BoardState']) => void;
    'game:join': (
       gameId: Reversi['GameId'],
-      role: Reversi['PlayerRole'],
+      role: Reversi['Role'],
       opponentId?: Reversi['PlayerId']
    ) => void;
    'game:leave': (redirect: string) => void;
    'game:over': (message: string) => void;
+   'game:playerJoin': (username: string, role: Reversi['Role']) => void;
+   'game:playerLeave': (username: string, role: Reversi['Role']) => void;
    'game:update': (response: unknown) => void;
    'server:message': (message: string, error?: string) => void;
+   'server:error': (error: ServerError, message: string) => void;
 }
 
 export type ClientSocket = SocketClient<ResponsePayload, RequestPayload>;
@@ -63,20 +70,18 @@ export type SocketHandler = {
 };
 
 // --- Client Construction --- //
+type AuthKey = string;
+export type ClientStatus = 'active' | 'observing' | 'idle';
 
-interface SocketInformation {
-   playerId: string;
-   socket: ServerSocket;
-   authKey: string | null;
+export interface WsClient {
+   playerId: Reversi['PlayerId'];
+   username: Reversi['Username'];
+   authKey: AuthKey;
    lastActive: number;
-}
-
-type ReversiPlayerStatus = 'playing' | 'observing' | 'idle';
-interface PlayerInformation {
-   username: string | null;
    currentGameId: Reversi['GameId'] | null;
-   playerStatus: ReversiPlayerStatus;
+   currentRole: Reversi['Role'];
    opponentId: Reversi['PlayerId'] | null;
+   status: ClientStatus;
+   socket: ServerSocket;
+   send: ServerSocket['emit'];
 }
-
-export type WsClient = SocketInformation & PlayerInformation;

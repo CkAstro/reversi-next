@@ -1,9 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import clsx from 'clsx';
 import { useSocket } from '@/app/games/useSocket';
 import { getStateFlips } from '@/lib/getStateFlips';
-import clsx from 'clsx';
-import { useState } from 'react';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div
@@ -49,7 +49,7 @@ export default function ReversiBoard() {
    const handlePointerEnter = (index: number) => {
       setMouseoverIndex(index);
 
-      if (boardState[index] !== null) return;
+      if (role === null || boardState[index] !== null) return;
 
       const flippedPieces = getStateFlips(boardState, role, index);
       setHighlights(flippedPieces);
@@ -62,7 +62,9 @@ export default function ReversiBoard() {
 
    return (
       <div className="flex flex-col">
-         <span>you are {role === 1 ? 'black' : 'white'}</span>
+         <span>
+            you are {role === 1 ? 'black' : role === -1 ? 'white' : 'observing'}
+         </span>
 
          <div className="p-4 bg-stone-800 grid grid-cols-8 select-none user-drag:none">
             {boardState.map((piece, index) => (

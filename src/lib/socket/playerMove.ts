@@ -14,7 +14,7 @@ export const playerMove: SocketHandler['player:move'] =
             else if (boardState) return;
             else {
                const clients = gameManager.getParticipants(gameId);
-               clientManager.sendMulti(clients, 'get:boardState', boardState!);
+               clientManager.broadcast(clients, 'get:boardState', boardState!);
             }
          }
       );

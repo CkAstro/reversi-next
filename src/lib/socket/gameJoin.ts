@@ -1,14 +1,25 @@
-import { gameManager } from '@/lib/game/gameManager';
+import { getGame } from '@/lib/game/gameCache';
 import type { SocketHandler } from '@/types/socket';
 
 export const gameJoin: SocketHandler['game:join'] = (client) => (gameId) => {
-   gameManager.addPlayer(
-      gameId,
-      client.playerId,
-      ({ error, role, opponentId }) => {
-         if (error)
-            client.socket.emit('server:message', 'unable to join game', error);
-         else client.socket.emit('game:join', gameId, role!, opponentId);
-      }
+   const game = getGame(gameId);
+   if (game === null)
+      return client.send(
+         'server:message',
+         'unable to join game',
+         'game not available'
+      );
+
+   game.addPlayer(client);
+
+   client.send(
+      'game:join',
+      game.gameId,
+      client.role,
+      client.opponent?.getUsername()
    );
+   game.clientList.forEach((participant) => {
+      if (participant.playerId === client.playerId) return;
+      participant.send('game:playerJoin', client.getUsername(), client.role);
+   });
 };

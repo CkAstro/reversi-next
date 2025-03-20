@@ -8,10 +8,10 @@ import { removeObserver } from '@/lib/game/removeObserver';
 import { removePlayer } from '@/lib/game/removePlayer';
 import { requestMove } from '@/lib/game/requestMove';
 import {
-   getActiveGames,
-   getCompletedGames,
+   getActiveGameIds,
+   getCompletedGameIds,
    getLobby,
-   getPendingGames,
+   getPendingGameIds,
    saveGame,
 } from '@/lib/game/gameCache';
 
@@ -25,9 +25,9 @@ export const gameManager = {
    requestMove,
    getOpponent,
    getParticipants,
-   getActiveGames,
-   getPendingGames,
-   getCompletedGames,
+   getActiveGameIds,
+   getPendingGameIds,
+   getCompletedGameIds,
    saveGame,
    getLobby,
 };

@@ -48,6 +48,7 @@ export const createGame = (
    };
 
    addPendingGame(game);
-   callback({ gameId, role: playerRole });
+
    logger(`player ${playerId} has created game ${game.gameId}`);
+   callback({ gameId, role: playerRole });
 };

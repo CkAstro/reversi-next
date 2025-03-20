@@ -1,14 +1,11 @@
-import { gameManager } from '@/lib/game/gameManager';
+import { createGame } from '@/lib/game/Game';
+// import { gameManager } from '@/lib/game/gameManager';
+// import { clientManager } from '@/lib/socket/clientManager';
 import type { SocketHandler } from '@/types/socket';
 
 export const gameCreate: SocketHandler['game:create'] = (client) => () => {
-   gameManager.createGame(client.playerId, ({ error, gameId, role }) => {
-      if (error)
-         client.socket.emit(
-            'server:message',
-            'unable to create new game',
-            error
-         );
-      else client.socket.emit('game:join', gameId, role);
+   createGame(client, (gameId, role) => {
+      client.send('game:join', gameId, role);
+      console.log(`player ${client.playerId} joined game ${gameId} (${role})`);
    });
 };

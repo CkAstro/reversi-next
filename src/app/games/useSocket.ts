@@ -6,7 +6,6 @@ import { io } from 'socket.io-client';
 import type {
    ActiveGameInfo,
    CompletedGameInfo,
-   PlayerName,
    PendingGameInfo,
    ClientSocket as ReversiSocket,
 } from '@/types/socket';
@@ -43,9 +42,8 @@ interface SocketState {
    game: string | null;
    gameType: 'active' | 'waiting' | 'replay' | 'not-found';
    boardState: Reversi['BoardState'];
-   role: Reversi['PlayerRole'];
-   playerA: PlayerName | null;
-   playerB: PlayerName | null;
+   role: Reversi['PlayerRole'] | null;
+   opponent: Reversi['PlayerId'] | null;
    observerCount: number;
    sub: ReversiSocket['on'];
    unsub: ReversiSocket['off'];
@@ -65,8 +63,8 @@ export const useSocket = create<SocketState>((set) => {
       });
    });
 
-   socket.on('game:join', (gameId) => {
-      set({ game: gameId });
+   socket.on('game:join', (gameId, role, opponentId) => {
+      set({ game: gameId, role, opponent: opponentId });
    });
 
    socket.on('server:message', (message, error) => {
@@ -83,9 +81,8 @@ export const useSocket = create<SocketState>((set) => {
       game: null,
       gameType: 'active',
       boardState: createNewBoard(),
-      role: 1,
-      playerA: null,
-      playerB: null,
+      role: null,
+      opponent: null,
       observerCount: 0,
       sub: (event, action) => {
          return socket.on(event, action);

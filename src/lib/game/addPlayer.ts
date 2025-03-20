@@ -1,4 +1,5 @@
 import { getGame } from '@/lib/game/gameCache';
+import { clientManager } from '@/lib/socket/clientManager';
 import { logger } from '@/lib/utils/logger';
 import type { Reversi } from '@/types/reversi';
 
@@ -41,8 +42,8 @@ export const addPlayer = (
          | { error: string; role?: never; opponentId?: never }
          | {
               error?: never;
-              role: Reversi['PlayerRole'];
-              opponentId: Reversi['PlayerId'];
+              role: Reversi['PlayerRole'] | Reversi['ObserverRole'];
+              opponentId: Reversi['PlayerId'] | null;
            }
    ) => void
 ) => {
@@ -70,4 +71,37 @@ export const addPlayer = (
 
 export const _forTesting = {
    assignPlayerToGame,
+};
+
+const _addPlayer = (
+   gameId: Reversi['GameId'],
+   playerId: Reversi['PlayerId'],
+   callback: (
+      result:
+         | { error: string; role?: never }
+         | {
+              error?: never;
+              role: Reversi['PlayerRole'] | Reversi['ObserverRole'];
+           }
+   ) => void
+) => {
+   const game = getGame(gameId);
+   if (game === null) return callback({ error: 'Game not found.' });
+
+   // should add player in first available role
+   let role: Reversi['Role'] = null;
+   if (game.playerA === null) {
+      game.playerA = playerId;
+      clientManager.assignOpponent(playerId, game.playerB);
+      clientManager.assignOpponent(game.playerB, playerId);
+   } else if (game.playerB === null) {
+      game.playerB = playerId;
+      clientManager.assignOpponent(playerId, game.playerA);
+      clientManager.assignOpponent(game.playerA, playerId);
+   } else {
+      game.observers.push(playerId);
+   }
+
+   logger(`player ${playerId} assigned to game ${game.gameId} (${role})`);
+   // should return ole and potential opponent in callback
 };

@@ -1,8 +1,10 @@
 type PlayerRole = 1 | -1;
 type ObserverRole = 0;
-type Role = PlayerRole | ObserverRole;
+type NullRole = null;
+type Role = PlayerRole | ObserverRole | NullRole;
+
 type PlayerId = string;
-type PlayerName = string;
+type Username = string;
 type GameId = string;
 type SquareState = PlayerRole | null;
 type BoardState = SquareState[];
@@ -12,20 +14,20 @@ interface PlayerMove {
 }
 interface PlayerInfo {
    playerId: PlayerId;
-   username: PlayerName;
+   username: Username;
    role: Role;
 }
 
-type GameStatus = 'active' | 'waiting' | 'replay' | 'complete';
+type GameStatus = 'active' | 'pending' | 'replay' | 'complete';
 interface Game {
    gameId: GameId;
    boardState: BoardState;
    moveHistory: PlayerMove[];
    turn: PlayerRole;
    gameStatus: GameStatus;
-   playerA: PlayerInfo | null;
-   playerB: PlayerInfo | null;
-   observers: PlayerInfo[];
+   playerA: PlayerId | null;
+   playerB: PlayerId | null;
+   observers: PlayerId[];
 }
 
 export interface Reversi {
@@ -33,6 +35,7 @@ export interface Reversi {
    ObserverRole: ObserverRole;
    Role: Role;
    PlayerId: PlayerId;
+   Username: Username;
    GameId: GameId;
    SquareState: SquareState;
    BoardState: BoardState;

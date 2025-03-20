@@ -1,26 +1,27 @@
 'use client';
 
 import { useSocket } from '@/app/games/useSocket';
-import {
-   // usePathname,
-   useRouter,
-} from 'next/navigation';
-import {
-   useEffect,
-   // useRef
-} from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 export default function GameRouter() {
    const router = useRouter();
-   // const gameId = useSocket((s) => s.game);
    const sub = useSocket((s) => s.sub);
    const unsub = useSocket((s) => s.unsub);
-   // const previousRoute = useRef<string | null>(null);
+   const send = useSocket((s) => s.send);
+   const previousId = useRef<string | null>(null);
 
-   // const pathname = usePathname();
-   // useEffect(() => {
-   //    console.log(pathname);
-   // }, [pathname]);
+   const pathname = usePathname();
+   useEffect(() => {
+      const gameId = pathname?.startsWith('/games/')
+         ? pathname.split(/\/games\/([^\/]+)$/)[1]
+         : null;
+
+      if (gameId === previousId.current) return;
+      previousId.current = gameId;
+
+      send('game:navigate', gameId);
+   }, [pathname, send]);
 
    // when gameId
    useEffect(() => {
