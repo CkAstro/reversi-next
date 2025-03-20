@@ -38,13 +38,27 @@ class Game {
       else if (role === -1) this.playerB = client;
       else if (role === 0) this.observers.set(client.playerId, client);
 
+      const opponent =
+         role === 1 ? this.playerB : role === -1 ? this.playerA : null;
+
       client.setGame(this);
       client.setCurrentRole(role);
+      client.setOpponent(opponent);
+      opponent?.setOpponent(client);
+   }
+
+   private unassignFromGame(client: Client, role: Reversi['Role']) {
+      if (role === 1) this.playerA = null;
+      else if (role === -1) this.playerB = null;
+      else if (role === 0) this.observers.delete(client.playerId);
 
       const opponent =
          role === 1 ? this.playerB : role === -1 ? this.playerA : null;
-      client.setOpponent(opponent);
-      opponent?.setOpponent(client);
+
+      client.setGame(null);
+      client.setCurrentRole(null);
+      client.setOpponent(null);
+      opponent?.setOpponent(null);
    }
 
    public get gameId() {
@@ -85,6 +99,13 @@ class Game {
       if (this.playerA === null) return this.assignToGame(client, 1);
       if (this.playerB === null) return this.assignToGame(client, -1);
       this.addObserver(client);
+   }
+
+   public removePlayer(client: Client) {
+      const currentRole = this.getRoleById(client.playerId);
+      if (currentRole === null) return;
+
+      this.unassignFromGame(client, currentRole);
    }
 }
 
