@@ -1,6 +1,7 @@
 import type { Reversi } from '@/types/reversi';
 import type { Socket as SocketClient } from 'socket.io-client';
 import type { Socket as SocketServer } from 'socket.io';
+import type { Client } from '@/lib/client/Client';
 
 export type PlayerName = string;
 export interface ActiveGameInfo {
@@ -43,9 +44,7 @@ export interface GameInfoResponse {
    pending: PendingGameInfo[];
 }
 
-export const serverErrors = { GAME_NOT_FOUND: 0 };
-export type ServerError = keyof typeof serverErrors;
-
+export type ServerError = 'SOCKET_ERROR' | 'GAME_NOT_FOUND';
 export interface ResponsePayload {
    'get:games': (response: GameInfoResponse) => void;
    'get:boardState': (boardState: Reversi['BoardState']) => void;
@@ -66,7 +65,7 @@ export interface ResponsePayload {
 export type ClientSocket = SocketClient<ResponsePayload, RequestPayload>;
 export type ServerSocket = SocketServer<RequestPayload, ResponsePayload>;
 export type SocketHandler = {
-   [E in keyof RequestPayload]: (client: WsClient) => RequestPayload[E];
+   [E in keyof RequestPayload]: (client: Client) => RequestPayload[E];
 };
 
 // --- Client Construction --- //
@@ -83,5 +82,4 @@ export interface WsClient {
    opponentId: Reversi['PlayerId'] | null;
    status: ClientStatus;
    socket: ServerSocket;
-   send: ServerSocket['emit'];
 }

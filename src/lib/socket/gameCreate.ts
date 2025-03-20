@@ -1,11 +1,15 @@
 import { createGame } from '@/lib/game/Game';
-// import { gameManager } from '@/lib/game/gameManager';
-// import { clientManager } from '@/lib/socket/clientManager';
+import { logger } from '@/lib/utils/logger';
 import type { SocketHandler } from '@/types/socket';
 
 export const gameCreate: SocketHandler['game:create'] = (client) => () => {
-   createGame(client, (gameId, role) => {
-      client.send('game:join', gameId, role);
-      console.log(`player ${client.playerId} joined game ${gameId} (${role})`);
-   });
+   const game = createGame(client);
+
+   const gameId = game.gameId;
+   const role = game.getRoleById(client.playerId);
+   client.send('game:join', gameId, role);
+
+   logger(
+      `game ${gameId} created by player ${client.playerId} (role: ${role})`
+   );
 };

@@ -1,6 +1,6 @@
 import { getRandomId } from '@/lib/utils/getRandomId';
 
-type SessionKey = string; // authkey:username
+type SessionKey = string; // authKey:username
 type PlayerId = string; // unique player id
 const sessionStore: Record<SessionKey, PlayerId> = {};
 
