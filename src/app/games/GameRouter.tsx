@@ -20,7 +20,7 @@ export default function GameRouter() {
       if (gameId === previousId.current) return;
       previousId.current = gameId;
 
-      send('game:navigate', gameId);
+      if (gameId !== null) send('game:join', gameId);
    }, [pathname, send]);
 
    // when gameId

@@ -93,7 +93,7 @@ class Game {
    }
 
    public getObservers() {
-      return this.observers.values();
+      return this.observers;
    }
 
    public get observerCount() {
@@ -129,11 +129,12 @@ class Game {
       this.boardState = nextBoardState;
       this.currentTurn = -this.currentTurn as Reversi['PlayerRole'];
       this.currentRound++;
+      this.moveHistory.push({ player: role, move: moveIndex });
       return true;
    }
 
    public getAllClients() {
-      const clients = [...this.getObservers()];
+      const clients = [...this.observers.values()];
       if (this.playerB !== null) clients.unshift(this.playerB);
       if (this.playerA !== null) clients.unshift(this.playerA);
       return clients;
