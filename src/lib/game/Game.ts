@@ -30,10 +30,21 @@ class Game {
 
       // init
       const playerRole = Math.random() < 0.5 ? 1 : -1;
-      if (playerRole === 1) this.playerA = client;
-      else this.playerB = client;
+      this.assignToGame(client, playerRole);
+   }
+
+   private assignToGame(client: Client, role: Reversi['Role']) {
+      if (role === 1) this.playerA = client;
+      else if (role === -1) this.playerB = client;
+      else if (role === 0) this.observers.set(client.playerId, client);
+
       client.setGame(this);
-      client.setCurrentRole(playerRole);
+      client.setCurrentRole(role);
+
+      const opponent =
+         role === 1 ? this.playerB : role === -1 ? this.playerA : null;
+      client.setOpponent(opponent);
+      opponent?.setOpponent(client);
    }
 
    public get gameId() {
@@ -57,6 +68,23 @@ class Game {
       if (this.playerB?.playerId === playerId) return -1;
       if (this.observers.get(playerId)) return 0;
       return null;
+   }
+
+   public addObserver(client: Client) {
+      if (this.observers.has(client.playerId)) return;
+      this.assignToGame(client, 0);
+   }
+
+   public getObservers() {
+      return this.observers.values();
+   }
+
+   public addPlayer(client: Client) {
+      const currentRole = this.getRoleById(client.playerId);
+      if (currentRole !== null) return this.assignToGame(client, currentRole);
+      if (this.playerA === null) return this.assignToGame(client, 1);
+      if (this.playerB === null) return this.assignToGame(client, -1);
+      this.addObserver(client);
    }
 }
 

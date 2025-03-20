@@ -1,5 +1,6 @@
 import { Client } from '@/lib/client/Client';
 import { gameCreate } from '@/lib/socket/gameCreate';
+import { gameJoin } from '@/lib/socket/gameJoin';
 import { sessions } from '@/lib/socket/sessionStore';
 import { logger } from '@/lib/utils/logger';
 import type { ServerSocket } from '@/types/socket';
@@ -22,7 +23,7 @@ export const initConnection = (socket: ServerSocket) => {
    });
 
    // set up event actions
-   socket.on('game:join', () => undefined);
+   socket.on('game:join', gameJoin(client));
    socket.on('game:leave', () => undefined);
    socket.on('game:create', gameCreate(client));
    socket.on('game:observe', () => undefined);

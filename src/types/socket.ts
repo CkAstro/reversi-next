@@ -44,7 +44,7 @@ export interface GameInfoResponse {
    pending: PendingGameInfo[];
 }
 
-export type ServerError = 'SOCKET_ERROR' | 'GAME_NOT_FOUND';
+export type ServerError = 'SOCKET_ERROR' | 'GAME_NOT_FOUND' | 'GAME_FULL';
 export interface ResponsePayload {
    'get:games': (response: GameInfoResponse) => void;
    'get:boardState': (boardState: Reversi['BoardState']) => void;
