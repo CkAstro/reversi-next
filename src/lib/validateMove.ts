@@ -2,25 +2,13 @@ import { getStateFlips } from '@/lib/getStateFlips';
 
 type GamePieceState = 1 | -1 | null;
 
-let turn: 1 | -1 = 1;
-const setTurn = (player: 1 | -1) => {
-   turn = player;
-};
-const getTurn = () => turn;
-
-let round = 0;
-const setRound = (value: number) => {
-   round = value;
-};
-const getRound = () => round;
-
 const updateGameState = (
-   gameState: GamePieceState[],
+   boardState: GamePieceState[],
    flips: number[],
    moveIndex: number,
    player: 1 | -1
 ) => {
-   const updatedState = [...gameState];
+   const updatedState = [...boardState];
    updatedState[moveIndex] = player;
    flips.forEach((index) => {
       updatedState[index] = player;
@@ -30,11 +18,10 @@ const updateGameState = (
 };
 
 const handleFirstFourRounds = (
-   gameState: GamePieceState[],
+   boardState: GamePieceState[],
    moveIndex: number,
    player: 1 | -1
 ) => {
-   if (turn !== player) return null;
    if (
       moveIndex !== 27 &&
       moveIndex !== 28 &&
@@ -43,35 +30,22 @@ const handleFirstFourRounds = (
    )
       return null;
 
-   turn = -turn as 1 | -1;
-   round++;
-   return updateGameState(gameState, [], moveIndex, player);
+   return updateGameState(boardState, [], moveIndex, player);
 };
 
 export const validateMove = (
-   gameState: GamePieceState[],
+   boardState: GamePieceState[],
+   moveIndex: number,
    player: 1 | -1,
-   moveIndex: number
+   round: number
 ) => {
-   // player can move in first 3
-   if (round < 4) return handleFirstFourRounds(gameState, moveIndex, player);
-
-   if (turn !== player) return null;
-
-   const flips = getStateFlips(gameState, player, moveIndex);
+   if (round < 4) return handleFirstFourRounds(boardState, moveIndex, player);
+   const flips = getStateFlips(boardState, player, moveIndex);
    if (flips.length === 0) return null;
-   // return flips;
-
-   turn = -turn as 1 | -1;
-   round++;
-   return updateGameState(gameState, flips, moveIndex, player);
+   return updateGameState(boardState, flips, moveIndex, player);
 };
 
 export const _forTesting = {
-   getTurn,
-   setTurn,
-   getRound,
-   setRound,
    handleFirstFourRounds,
    updateGameState,
 };

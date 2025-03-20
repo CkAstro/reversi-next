@@ -2,6 +2,7 @@ import { createNewBoard } from '@/lib/boardState/createNewBoard';
 import type { Client } from '@/lib/client/Client';
 import { addPendingGame } from '@/lib/game/gameCache';
 import { getRandomId } from '@/lib/utils/getRandomId';
+import { validateMove } from '@/lib/validateMove';
 import type { Reversi } from '@/types/reversi';
 
 class Game {
@@ -11,6 +12,7 @@ class Game {
    private firstTurn: Reversi['PlayerRole'];
    // private previousMove: unknown | null;
    private currentTurn: Reversi['PlayerRole'];
+   private currentRound: number;
    private currentStatus: Reversi['GameStatus'];
    private playerA: Client | null;
    private playerB: Client | null;
@@ -23,6 +25,7 @@ class Game {
       this.firstTurn = Math.random() < 0.5 ? 1 : -1;
       // this.previousMove = null;
       this.currentTurn = this.firstTurn;
+      this.currentRound = 0;
       this.currentStatus = 'pending';
       this.playerA = null;
       this.playerB = null;
@@ -106,6 +109,30 @@ class Game {
       if (currentRole === null) return;
 
       this.unassignFromGame(client, currentRole);
+   }
+
+   public placeGamePiece(role: Reversi['Role'], moveIndex: number): boolean {
+      if (role !== this.currentTurn) return false;
+
+      const nextBoardState = validateMove(
+         this.boardState,
+         moveIndex,
+         this.currentTurn,
+         this.currentRound
+      );
+
+      if (nextBoardState === null) return false;
+      this.boardState = nextBoardState;
+      this.currentTurn = -this.currentTurn as Reversi['PlayerRole'];
+      this.currentRound++;
+      return true;
+   }
+
+   public getAllClients() {
+      const clients = [...this.getObservers()];
+      if (this.playerB !== null) clients.unshift(this.playerB);
+      if (this.playerA !== null) clients.unshift(this.playerA);
+      return clients;
    }
 }
 

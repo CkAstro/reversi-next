@@ -44,10 +44,18 @@ export interface GameInfoResponse {
    pending: PendingGameInfo[];
 }
 
-export type ServerError = 'SOCKET_ERROR' | 'GAME_NOT_FOUND' | 'GAME_FULL';
+export type ServerError =
+   | 'SOCKET_ERROR'
+   | 'GAME_NOT_FOUND'
+   | 'GAME_FULL'
+   | 'INVALID_MOVE';
+
 export interface ResponsePayload {
    'get:games': (response: GameInfoResponse) => void;
-   'get:boardState': (boardState: Reversi['BoardState']) => void;
+   'get:boardState': (
+      boardState: Reversi['BoardState'],
+      turn: Reversi['PlayerRole']
+   ) => void;
    'game:join': (
       gameId: Reversi['GameId'],
       role: Reversi['Role'],

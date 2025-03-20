@@ -22,9 +22,9 @@ describe('updateGameState', () => {
       return null;
    });
 
-   test('moveIndex is updated', () => {
+   test('moveIndex entry is updated', () => {
       const expected = [...testState];
-      expected[18] = 1; //
+      expected[18] = 1;
 
       expect(updateGameState(testState, [], 18, 1)).toStrictEqual(expected);
    });
@@ -57,72 +57,17 @@ describe('validateMove', () => {
       return null;
    });
 
-   beforeEach(() => {
-      _forTesting.setTurn(1);
-      _forTesting.setRound(10);
-   });
-
    test('states flip with valid move', () => {
       const expected = [...testState];
       expected[9] = flipState(expected, 9);
       expected[17] = flipState(expected, 17);
       expected[25] = 1;
 
-      expect(validateMove(testState, 1, 25)).toStrictEqual(expected);
+      expect(validateMove(testState, 25, 1, 10)).toStrictEqual(expected);
    });
 
    test('invalid move returns null', () => {
-      expect(validateMove(testState, 1, 3)).toBe(null);
-   });
-
-   test('invalid turn returns null', () => {
-      const testArgs = [testState, -1, 40] as const;
-      expect(validateMove(...testArgs)).toBe(null);
-
-      // set turn and prove non-null
-      const expected = [...testState];
-      expected[32] = flipState(expected, 32);
-      expected[40] = -1;
-
-      _forTesting.setTurn(-1);
-      expect(validateMove(...testArgs)).toStrictEqual(expected);
-   });
-
-   test('valid move updates turn', () => {
-      expect(_forTesting.getTurn()).toBe(1);
-      validateMove(testState, 1, 25);
-      expect(_forTesting.getTurn()).toBe(-1);
-   });
-
-   test('invalid turn does not update turn', () => {
-      expect(_forTesting.getTurn()).toBe(1);
-      expect(validateMove(testState, -1, 40)).toBe(null);
-      expect(_forTesting.getTurn()).toBe(1);
-   });
-
-   test('turn flips with valid move', () => {
-      const firstExpected = [...testState];
-      firstExpected[9] = flipState(firstExpected, 9);
-      firstExpected[17] = flipState(firstExpected, 17);
-      firstExpected[25] = 1;
-
-      const secondExpected = [...firstExpected];
-      secondExpected[10] = flipState(secondExpected, 10);
-      secondExpected[18] = 1;
-
-      // first verify both moves are valid
-      const nextState = validateMove(testState, 1, 25);
-      expect(nextState).not.toStrictEqual(testState);
-      expect(nextState).toStrictEqual(firstExpected);
-
-      _forTesting.setTurn(1);
-      expect(nextState).not.toBe(null);
-      expect(validateMove(nextState!, 1, 18)).toStrictEqual(secondExpected);
-
-      // then reset and re-run both moves
-      _forTesting.setTurn(1);
-      expect(validateMove(testState, 1, 25)).toStrictEqual(firstExpected);
-      expect(validateMove(testState, 1, 18)).toBe(null);
+      expect(validateMove(testState, 3, 1, 10)).toBe(null);
    });
 
    test('multi-direction flip functions', () => {
@@ -132,7 +77,7 @@ describe('validateMove', () => {
       expected[17] = flipState(expected, 17);
       expected[18] = 1;
 
-      expect(validateMove(testState, 1, 18)).toStrictEqual(expected);
+      expect(validateMove(testState, 18, 1, 10)).toStrictEqual(expected);
    });
 });
 
@@ -144,17 +89,9 @@ describe('validateMove - firstFourRounds', () => {
    )[];
    const innerFour = [27, 28, 35, 36];
 
-   beforeEach(() => {
-      _forTesting.setRound(0);
-      _forTesting.setTurn(1);
-   });
-
    test('only inner four are allowed', () => {
       const { handleFirstFourRounds } = _forTesting;
       for (let i = 0; i < 64; i++) {
-         _forTesting.setTurn(1);
-         _forTesting.setRound(0);
-
          // avoid conditional testing
          const firstRoundState = handleFirstFourRounds(nullState, i, 1);
          const isValid = firstRoundState !== null;
@@ -166,14 +103,14 @@ describe('validateMove - firstFourRounds', () => {
 
    test('flip not required', () => {
       let nextState = [...nullState] as typeof nullState;
-      let player = _forTesting.getTurn();
+      let player = 1 as 1 | -1;
       for (let i = 0; i < 4; i++) {
-         nextState = validateMove(nextState, player, innerFour[i])!;
+         nextState = validateMove(nextState, innerFour[i], player, i)!;
          player = -player as 1 | -1;
          expect(nextState).not.toBe(null);
       }
 
       // fifth move should require a flip
-      expect(validateMove(nextState, player, 26)); // will not produce a flip
+      expect(validateMove(nextState, 26, player, 4)); // will not produce a flip
    });
 });

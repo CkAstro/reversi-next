@@ -6,6 +6,7 @@ import { gameJoin } from '@/lib/socket/gameJoin';
 import { sessions } from '@/lib/socket/sessionStore';
 import { logger } from '@/lib/utils/logger';
 import type { ServerSocket } from '@/types/socket';
+import { playerMove } from '@/lib/socket/playerMove';
 
 export const initConnection = (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
@@ -31,7 +32,7 @@ export const initConnection = (socket: ServerSocket) => {
    socket.on('game:observe', gameObserve(client));
    socket.on('game:navigate', () => undefined);
 
-   socket.on('player:move', () => undefined);
+   socket.on('player:move', playerMove(client));
 
    socket.on('get:games', () => undefined);
    socket.on('get:boardState', () => undefined);
