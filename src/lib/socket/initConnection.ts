@@ -7,6 +7,7 @@ import { sessions } from '@/lib/socket/sessionStore';
 import { logger } from '@/lib/utils/logger';
 import type { ServerSocket } from '@/types/socket';
 import { playerMove } from '@/lib/socket/playerMove';
+import { getBoardState } from '@/lib/socket.old/getBoardState';
 
 export const initConnection = (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
@@ -35,5 +36,5 @@ export const initConnection = (socket: ServerSocket) => {
    socket.on('player:move', playerMove(client));
 
    socket.on('get:games', () => undefined);
-   socket.on('get:boardState', () => undefined);
+   socket.on('get:boardState', getBoardState(client));
 };
