@@ -37,12 +37,12 @@ const createSocket = () => {
 
 interface SocketState {
    activeGames: ActiveGameInfo[];
-   waitingGames: PendingGameInfo[];
+   pendingGames: PendingGameInfo[];
    recentGames: CompletedGameInfo[];
    game: string | null;
    gameType: 'active' | 'waiting' | 'replay' | 'not-found';
    boardState: Reversi['BoardState'];
-   role: Reversi['PlayerRole'] | null;
+   role: Reversi['Role'];
    opponent: Reversi['PlayerId'] | null;
    observerCount: number;
    sub: ReversiSocket['on'];
@@ -58,7 +58,7 @@ export const useSocket = create<SocketState>((set) => {
    socket.on('get:games', ({ active, complete, pending }) => {
       set({
          activeGames: active,
-         waitingGames: pending,
+         pendingGames: pending,
          recentGames: complete,
       });
    });
@@ -76,7 +76,7 @@ export const useSocket = create<SocketState>((set) => {
 
    return {
       activeGames: [],
-      waitingGames: [],
+      pendingGames: [],
       recentGames: [],
       game: null,
       gameType: 'active',
