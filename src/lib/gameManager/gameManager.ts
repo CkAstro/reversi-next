@@ -2,7 +2,7 @@ import {
    getPendingGames,
    getActiveGames,
    getCompletedGames,
-} from './gameCache';
+} from '@/lib/game/gameCache';
 import type { GameInfoResponse } from '@/types/socket';
 import { complete } from './complete';
 import { requestMove } from './requestMove';
