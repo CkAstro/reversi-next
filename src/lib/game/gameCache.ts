@@ -1,48 +1,17 @@
 import type { Game } from '@/lib/game/Game';
 import { logger } from '@/lib/utils/logger';
 import type { Reversi } from '@/types/reversi';
+import {
+   gameCache,
+   pendingCache,
+   activeCache,
+   completedCache,
+} from '@/lib/game/gameStore';
 import type {
    ActiveGameInfo,
    CompletedGameInfo,
    PendingGameInfo,
 } from '@/types/socket';
-
-class OrderedCache<K, V> {
-   private map: Map<K, V> = new Map<K, V>();
-   private keys: K[] = [];
-
-   constructor() {}
-
-   public insert(key: K, value: V) {
-      if (this.map.has(key)) this.keys.filter((k) => k !== key);
-      this.keys.unshift(key);
-      this.map.set(key, value);
-   }
-
-   public remove(key: K): V | null {
-      const value = this.map.get(key);
-
-      this.keys.filter((k) => k !== key);
-      this.map.delete(key);
-
-      return value ?? null;
-   }
-
-   public getValue(key: K): V | null {
-      return this.map.get(key) ?? null;
-   }
-
-   public getRange(count: number, page: number) {
-      const keys =
-         page < 0 ? [] : this.keys.slice(count * page, count * (page + 1));
-      return keys.map((key) => this.map.get(key)) as V[];
-   }
-}
-
-const gameCache = new OrderedCache<Reversi['GameId'], Game>();
-const pendingCache = new OrderedCache<Reversi['GameId'], PendingGameInfo>();
-const activeCache = new OrderedCache<Reversi['GameId'], ActiveGameInfo>();
-const completedCache = new OrderedCache<Reversi['GameId'], CompletedGameInfo>();
 
 /** Adds a new game to cache.
  * @param game game to add
@@ -138,3 +107,10 @@ export const getActiveGames = (count = 10, page = 0): ActiveGameInfo[] =>
  */
 export const getCompletedGames = (count = 10, page = 0): CompletedGameInfo[] =>
    completedCache.getRange(count, page);
+
+export const _forTesting = {
+   gameCache,
+   pendingCache,
+   activeCache,
+   completedCache,
+};

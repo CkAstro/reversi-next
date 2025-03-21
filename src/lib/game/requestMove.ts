@@ -1,44 +1,28 @@
-import { validateMove } from '@/lib/validateMove';
-import { logger } from '@/lib/utils/logger';
 import { getGame } from '@/lib/game/gameCache';
+import type { Client } from '@/lib/client/Client';
 import type { Reversi } from '@/types/reversi';
+import type { ServerError } from '@/types/socket';
 
-/** request a move for a given player
- * @param gameId id of game
- * @param playerId id of player
- * @param moveIndex board index player wishes to place a piece
- * @param callback { error, BoardState }
- */
 export const requestMove = (
    gameId: Reversi['GameId'],
-   playerId: Reversi['PlayerId'],
+   playerRole: Reversi['PlayerRole'],
    moveIndex: number,
    callback: (
-      result:
-         | { error: string; boardState?: never }
-         | { error?: never; boardState: Reversi['BoardState'] }
+      error: ServerError | null,
+      boardState: Reversi['BoardState'],
+      turn: Reversi['PlayerRole'],
+      clients: Client[]
    ) => void
 ) => {
-   logger(`player ${playerId} requested move ${moveIndex} in game ${gameId}`);
    const game = getGame(gameId);
-   if (game === null) return callback({ error: 'Game does not exist.' });
+   if (game === null) return callback('GAME_NOT_FOUND', [], 1, []);
 
-   const playerRole =
-      game.playerA?.playerId === playerId
-         ? game.playerA.role
-         : game.playerB?.playerId === playerId
-         ? game.playerB.role
-         : null;
+   const validMove = game.placeGamePiece(playerRole, moveIndex);
+   if (!validMove) return callback('INVALID_MOVE', [], playerRole, []);
 
-   if (playerRole === null)
-      return callback({ error: 'Player is not active in this game.' });
+   const boardState = game.getBoardState();
+   const turn = game.turn;
+   const clients = game.getAllClients();
 
-   const boardState = validateMove(
-      game.boardState,
-      playerRole as Reversi['PlayerRole'],
-      moveIndex
-   );
-
-   if (boardState === null) return callback({ error: 'Move not allowed.' });
-   callback({ boardState });
+   callback(null, boardState, turn, clients);
 };

@@ -107,6 +107,12 @@ class Game {
       return null;
    }
 
+   public getClientById(playerId: Reversi['PlayerId']) {
+      if (this.playerA?.playerId === playerId) return this.playerA;
+      if (this.playerB?.playerId === playerId) return this.playerB;
+      return this.observers.get(playerId) ?? null;
+   }
+
    public addObserver(client: Client) {
       if (this.observers.has(client.playerId)) return;
       this.assignToGame(client, 0);
@@ -130,10 +136,10 @@ class Game {
       return 0;
    }
 
-   public removePlayer(client: Client): Reversi['Role'] {
-      const currentRole = this.getRoleById(client.playerId);
-      if (currentRole === null) return null;
-
+   public removePlayer(playerId: Reversi['PlayerId']): Reversi['Role'] {
+      const currentRole = this.getRoleById(playerId);
+      const client = this.getClientById(playerId);
+      if (client === null || currentRole === null) return null;
       return this.unassignFromGame(client, currentRole);
    }
 
