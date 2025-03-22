@@ -14,8 +14,8 @@ import { getBoardState } from './getBoardState';
 
 const getLobby = (): GameInfoResponse => ({
    pending: getPendingGames(),
-   active: getActiveGames(),
-   complete: getCompletedGames(),
+   active: getActiveGames(30),
+   complete: getCompletedGames(30),
 });
 
 export const gameManager = {
