@@ -1,5 +1,5 @@
 import type { Game } from '@/lib/game/Game';
-import { validateMove } from '@/lib/validateMove';
+import { validateMove } from '@/lib/boardState/validateMove';
 import type { Reversi } from '@/types/reversi';
 
 export function placeGamePiece(

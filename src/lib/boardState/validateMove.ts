@@ -1,4 +1,4 @@
-import { getStateFlips } from '@/lib/getStateFlips';
+import { getStateFlips } from '@/lib/boardState/getStateFlips';
 
 type GamePieceState = 1 | -1 | null;
 

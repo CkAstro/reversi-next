@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { useSocket } from '@/app/games/useSocket';
-import { getStateFlips } from '@/lib/getStateFlips';
+import { getStateFlips } from '@/lib/boardState/getStateFlips';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div

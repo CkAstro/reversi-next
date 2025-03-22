@@ -1,8 +1,8 @@
 import { placeGamePiece } from '../placeGamePiece';
 import type { Game } from '@/lib/game/Game';
-import { validateMove } from '@/lib/validateMove';
+import { validateMove } from '@/lib/boardState/validateMove';
 
-jest.mock('@/lib/validateMove', () => ({
+jest.mock('@/lib/boardState/validateMove', () => ({
    validateMove: jest.fn(),
 }));
 
