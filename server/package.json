@@ -10,6 +10,7 @@
       "start": "npm run build && node server.cjs"
    },
    "devDependencies": {
+      "dotenv": "^16.4.7",
       "dotenv-webpack": "^8.1.0",
       "fork-ts-checker-webpack-plugin": "^9.0.2",
       "nodemon-webpack-plugin": "^4.8.2",

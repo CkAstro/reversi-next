@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import clsx from 'clsx';
 import { useSocket } from '@/app/games/useSocket';
-import { getStateFlips } from '@/lib/getStateFlips';
+import { getStateFlips } from '@/lib/boardState/getStateFlips';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div
@@ -49,7 +49,7 @@ export default function ReversiBoard() {
    const handlePointerEnter = (index: number) => {
       setMouseoverIndex(index);
 
-      if (role === null || boardState[index] !== null) return;
+      if (role === null || role === 0 || boardState[index] !== null) return;
 
       const flippedPieces = getStateFlips(boardState, role, index);
       setHighlights(flippedPieces);
@@ -78,7 +78,9 @@ export default function ReversiBoard() {
                   <Highlight highlight={highlights.includes(index)} />
                   <BoardPiece
                      piece={piece}
-                     preview={mouseoverIndex === index ? role : null}
+                     preview={
+                        mouseoverIndex === index && role !== 0 ? role : null
+                     }
                   />
                </div>
             ))}

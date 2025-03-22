@@ -1,75 +1,51 @@
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
 import type { Client } from '@/lib/client/Client';
-import { addPendingGame } from '@/lib/game/gameCache';
+import { addPendingGame } from './gameCache';
 import { getRandomId } from '@/lib/utils/getRandomId';
-import { validateMove } from '@/lib/validateMove';
 import type { Reversi } from '@/types/reversi';
+import { assignToGame } from './assignToGame';
+import { unassignFromGame } from './unassignFromGame';
+import { getOpponentByRole } from './getOpponentByRole';
+import { getOpponentById } from './getOpponentById';
+import { getBoardState } from './getBoardState';
+import { getRoleById } from './getRoleById';
+import { getClientById } from './getClientById';
+import { addObserver } from './addObserver';
+import { addPlayer } from './addPlayer';
+import { removePlayer } from './removePlayer';
+import { placeGamePiece } from './placeGamePiece';
+import { getAllClients } from './getAllClients';
+import { getPlayers } from './getPlayers';
 
 class Game {
    private id: Reversi['GameId'];
-   private boardState: Reversi['BoardState'];
-   private moveHistory: Reversi['PlayerMove'][];
-   private firstTurn: Reversi['PlayerRole'];
+   public _boardState: Reversi['BoardState'];
+   public _moveHistory: Reversi['PlayerMove'][];
+   public _firstTurn: Reversi['PlayerRole'];
    // private previousMove: unknown | null;
-   private currentTurn: Reversi['PlayerRole'];
-   private currentRound: number;
-   private currentStatus: Reversi['GameStatus'];
-   private playerA: Client | null;
-   private playerB: Client | null;
-   private observers: Map<Reversi['PlayerId'], Client>;
+   public _currentTurn: Reversi['PlayerRole'];
+   public _currentRound: number;
+   public _currentStatus: Reversi['GameStatus'];
+   public _playerA: Client | null;
+   public _playerB: Client | null;
+   public _observers: Map<Reversi['PlayerId'], Client>;
 
    public constructor(client: Client) {
       this.id = getRandomId();
-      this.boardState = createNewBoard();
-      this.moveHistory = [];
-      this.firstTurn = Math.random() < 0.5 ? 1 : -1;
+      this._boardState = createNewBoard();
+      this._moveHistory = [];
+      this._firstTurn = Math.random() < 0.5 ? 1 : -1;
       // this.previousMove = null;
-      this.currentTurn = this.firstTurn;
-      this.currentRound = 0;
-      this.currentStatus = 'pending';
-      this.playerA = null;
-      this.playerB = null;
-      this.observers = new Map<Reversi['PlayerId'], Client>();
+      this._currentTurn = this._firstTurn;
+      this._currentRound = 0;
+      this._currentStatus = 'pending';
+      this._playerA = null;
+      this._playerB = null;
+      this._observers = new Map<Reversi['PlayerId'], Client>();
 
       // init
       const playerRole = Math.random() < 0.5 ? 1 : -1;
-      this.assignToGame(client, playerRole);
-   }
-
-   private assignToGame(
-      client: Client,
-      role: Reversi['Role']
-   ): Reversi['Role'] {
-      if (role === 1) this.playerA = client;
-      else if (role === -1) this.playerB = client;
-      else if (role === 0) this.observers.set(client.playerId, client);
-
-      const opponent = this.getOpponentByRole(role);
-
-      client.setGame(this);
-      client.setCurrentRole(role);
-      client.setOpponent(opponent);
-      opponent?.setOpponent(client);
-
-      return role;
-   }
-
-   private unassignFromGame(
-      client: Client,
-      role: Reversi['Role']
-   ): Reversi['Role'] {
-      if (role === 1) this.playerA = null;
-      else if (role === -1) this.playerB = null;
-      else if (role === 0) this.observers.delete(client.playerId);
-
-      const opponent = this.getOpponentByRole(role);
-
-      client.setGame(null);
-      client.setCurrentRole(null);
-      client.setOpponent(null);
-      opponent?.setOpponent(null);
-
-      return role;
+      this._assignToGame(client, playerRole);
    }
 
    public get gameId() {
@@ -77,107 +53,38 @@ class Game {
    }
 
    public get turn() {
-      return this.currentTurn;
+      return this._currentTurn;
    }
 
    public get status() {
-      return this.currentStatus;
-   }
-
-   public getOpponentByRole(role: Reversi['Role']): Client | null {
-      return role === 1 ? this.playerB : role === -1 ? this.playerA : null;
-   }
-
-   public getOpponentById(playerId: Reversi['PlayerId']): Client | null {
-      return this.playerA?.playerId === playerId
-         ? this.playerB
-         : this.playerB?.playerId === playerId
-         ? this.playerA
-         : null;
-   }
-
-   public getBoardState() {
-      return [...this.boardState];
-   }
-
-   public getRoleById(playerId: Reversi['PlayerId']) {
-      if (this.playerA?.playerId === playerId) return 1;
-      if (this.playerB?.playerId === playerId) return -1;
-      if (this.observers.get(playerId)) return 0;
-      return null;
-   }
-
-   public getClientById(playerId: Reversi['PlayerId']) {
-      if (this.playerA?.playerId === playerId) return this.playerA;
-      if (this.playerB?.playerId === playerId) return this.playerB;
-      return this.observers.get(playerId) ?? null;
-   }
-
-   public addObserver(client: Client) {
-      if (this.observers.has(client.playerId)) return;
-      this.assignToGame(client, 0);
+      return this._currentStatus;
    }
 
    public getObservers() {
-      return this.observers;
+      return this._observers;
    }
 
    public get observerCount() {
-      return this.observers.size;
-   }
-
-   public addPlayer(client: Client) {
-      const currentRole = this.getRoleById(client.playerId);
-      if (currentRole !== null) return this.assignToGame(client, currentRole);
-      if (this.playerA === null) return this.assignToGame(client, 1);
-      if (this.playerB === null) return this.assignToGame(client, -1);
-
-      this.addObserver(client);
-      return 0;
-   }
-
-   public removePlayer(playerId: Reversi['PlayerId']): Reversi['Role'] {
-      const currentRole = this.getRoleById(playerId);
-      const client = this.getClientById(playerId);
-      if (client === null || currentRole === null) return null;
-      return this.unassignFromGame(client, currentRole);
-   }
-
-   public placeGamePiece(role: Reversi['Role'], moveIndex: number): boolean {
-      if (role !== this.currentTurn) return false;
-
-      const nextBoardState = validateMove(
-         this.boardState,
-         moveIndex,
-         this.currentTurn,
-         this.currentRound
-      );
-
-      if (nextBoardState === null) return false;
-      this.boardState = nextBoardState;
-      this.currentTurn = -this.currentTurn as Reversi['PlayerRole'];
-      this.currentRound++;
-      this.moveHistory.push({ player: role, move: moveIndex });
-      return true;
-   }
-
-   public getAllClients() {
-      const clients = [...this.observers.values()];
-      if (this.playerB !== null) clients.unshift(this.playerB);
-      if (this.playerA !== null) clients.unshift(this.playerA);
-      return clients;
-   }
-
-   public getPlayers(): [
-      Reversi['Username'] | null,
-      Reversi['Username'] | null
-   ] {
-      return [this.playerA?.username ?? null, this.playerB?.username ?? null];
+      return this._observers.size;
    }
 
    public isComplete() {
       return this.status === 'complete';
    }
+
+   public _assignToGame = assignToGame;
+   public _unassignFromGame = unassignFromGame;
+   public getOpponentByRole = getOpponentByRole;
+   public getOpponentById = getOpponentById;
+   public getBoardState = getBoardState;
+   public getRoleById = getRoleById;
+   public getClientById = getClientById;
+   public addObserver = addObserver;
+   public addPlayer = addPlayer;
+   public removePlayer = removePlayer;
+   public placeGamePiece = placeGamePiece;
+   public getAllClients = getAllClients;
+   public getPlayers = getPlayers;
 }
 
 export type { Game };
