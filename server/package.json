@@ -21,7 +21,6 @@
       "webpack-node-externals": "^3.0.0"
    },
    "dependencies": {
-      "dotenv": "^16.4.7",
       "socket.io": "^4.8.1"
    }
 }
