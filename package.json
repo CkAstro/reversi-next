@@ -13,6 +13,7 @@
       "docker:server": "STANDALONE_SERVER=true docker compose -f docker/docker-compose.dev.yml --profile standalone up",
       "docker:dev": "docker compose -f docker/docker-compose.dev.yml up",
       "docker:prod": "docker compose -f docker/docker-compose.prod.yml up",
+      "docker:server:prod": "STANDALONE_SERVER=true docker compose -f docker/docker-compose.prod.yml --profile standalone up",
       "spellcheck": "cspell --no-progress --dot \"**/*.{js,ts,jsx,tsx,json,html,xml,svg,css,scss,sass,md}\"",
       "prepare": "husky || true"
    },

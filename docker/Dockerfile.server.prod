@@ -1,0 +1,29 @@
+FROM node:20-alpine AS build
+WORKDIR /usr/src/app
+
+COPY ./server/server.ts .
+COPY ./server/package.json .
+COPY ./server/package-lock.json .
+COPY ./server/tsconfig.json .
+COPY ./server/webpack.config.cjs .
+COPY ../src ./src
+RUN npm ci
+
+# COPY . .
+ENV NEXT_PUBLIC_DEDICATED_SOCKET_SERVER=true
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+# stage 2
+FROM node:20-alpine
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# minimal copy
+COPY --from=build /usr/src/app/server.cjs ./server.cjs
+COPY --from=build /usr/src/app/node_modules ./node_modules
+ENV PORT=3001
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.cjs"]

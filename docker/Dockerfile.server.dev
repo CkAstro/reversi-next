@@ -1,5 +1,4 @@
 FROM node:20-alpine AS build
-RUN pwd
 WORKDIR /usr/src/app
 
 COPY ./server/server.ts .
