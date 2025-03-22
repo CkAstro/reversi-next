@@ -1,4 +1,4 @@
-import type { ReversiPlayer } from '@/types/reversi';
+import type { Reversi } from '@/types/reversi';
 import { serializeBoardState } from '../serializeBoardState';
 
 describe('serializeBoardState', () => {
@@ -16,7 +16,10 @@ describe('serializeBoardState', () => {
    });
 
    test('full board serializes', () => {
-      const boardState: ReversiPlayer[] = Array.from({ length: 64 }, () => 1);
+      const boardState: Reversi['BoardState'] = Array.from(
+         { length: 64 },
+         () => 1
+      );
       const expected = '1,'.repeat(63) + '1';
       expect(serializeBoardState(boardState)).toBe(expected);
    });

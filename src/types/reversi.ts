@@ -1,42 +1,46 @@
-export type ReversiPlayer = 1 | -1;
-export type ReversiPlayerId = string;
-export type ReversiGameId = string;
-export type ReversiSquareState = ReversiPlayer | null;
-export type ReversiBoardState = ReversiSquareState[];
-export interface ReversiPlayerMove {
-   player: ReversiPlayer;
+type PlayerRole = 1 | -1;
+type ObserverRole = 0;
+type NullRole = null;
+type Role = PlayerRole | ObserverRole | NullRole;
+
+type PlayerId = string;
+type Username = string;
+type GameId = string;
+type SquareState = PlayerRole | null;
+type BoardState = SquareState[];
+interface PlayerMove {
+   player: PlayerRole;
    move: number;
 }
-
-export type ReversiPlayerRole = 'player1' | 'player2' | 'observer';
-export type ReversiGameStatus = 'active' | 'waiting' | 'replay' | 'complete';
-export interface ReversiGame {
-   gameId: ReversiGameId;
-   boardState: ReversiBoardState;
-   moveHistory: ReversiPlayerMove[];
-   turn: ReversiPlayer;
-   gameStatus: ReversiGameStatus;
-   playerId1: ReversiPlayerId | null;
-   playerId2: ReversiPlayerId | null;
-   observerIds: ReversiPlayerId[];
+interface PlayerInfo {
+   playerId: PlayerId;
+   username: Username;
+   role: Role;
 }
 
-import type { Socket } from 'socket.io';
-
-interface SocketInformation {
-   socketId: string;
-   socket: Socket;
-   authKey: string | null;
-   isConnected: () => boolean;
-   lastActive: number;
+type GameStatus = 'active' | 'pending' | 'replay' | 'complete';
+interface Game {
+   gameId: GameId;
+   boardState: BoardState;
+   moveHistory: PlayerMove[];
+   turn: PlayerRole;
+   gameStatus: GameStatus;
+   playerA: PlayerId | null;
+   playerB: PlayerId | null;
+   observers: PlayerId[];
 }
 
-type ReversiPlayerStatus = 'playing' | 'observing' | 'idle';
-interface PlayerInformation {
-   username: string | null;
-   currentGameId: ReversiGame['gameId'] | null;
-   playerStatus: ReversiPlayerStatus;
-   opponentId: ReversiPlayerId | null;
+export interface Reversi {
+   PlayerRole: PlayerRole;
+   ObserverRole: ObserverRole;
+   Role: Role;
+   PlayerId: PlayerId;
+   Username: Username;
+   GameId: GameId;
+   SquareState: SquareState;
+   BoardState: BoardState;
+   PlayerMove: PlayerMove;
+   PlayerInfo: PlayerInfo;
+   GameStatus: GameStatus;
+   Game: Game;
 }
-
-export type WsClient = SocketInformation & PlayerInformation;

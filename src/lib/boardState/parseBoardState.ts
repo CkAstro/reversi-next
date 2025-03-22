@@ -1,7 +1,9 @@
-import type { ReversiBoardState, ReversiPlayer } from '@/types/reversi';
+import type { Reversi } from '@/types/reversi';
 
-export const parseBoardState = (serializedState: string): ReversiBoardState =>
+export const parseBoardState = (
+   serializedState: string
+): Reversi['BoardState'] =>
    serializedState.split(',').map((square) => {
       if (square === '') return null;
-      return parseInt(square) as ReversiPlayer;
+      return parseInt(square) as Reversi['PlayerRole'];
    });

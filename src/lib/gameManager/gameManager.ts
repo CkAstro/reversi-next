@@ -1,0 +1,30 @@
+import {
+   getPendingGames,
+   getActiveGames,
+   getCompletedGames,
+} from '@/lib/game/gameCache';
+import type { GameInfoResponse } from '@/types/socket';
+import { complete } from './complete';
+import { requestMove } from './requestMove';
+import { observe } from './observe';
+import { leave } from './leave';
+import { join } from './join';
+import { create } from './create';
+import { getBoardState } from './getBoardState';
+
+const getLobby = (): GameInfoResponse => ({
+   pending: getPendingGames(),
+   active: getActiveGames(),
+   complete: getCompletedGames(),
+});
+
+export const gameManager = {
+   getLobby,
+   create,
+   join,
+   leave,
+   observe,
+   getBoardState,
+   requestMove,
+   complete,
+};

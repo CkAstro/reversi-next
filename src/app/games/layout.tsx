@@ -1,3 +1,14 @@
+import GameHistory from '@/app/games/GameHistory';
+import GameRouter from '@/app/games/GameRouter';
+
 export default function Layout({ children }: { children: React.ReactNode }) {
-   return children;
+   return (
+      <div className="w-full h-full overflow-x-scroll p-2 flex justify-center bg-gray-900">
+         <div className="flex gap-2 flex-col md:flex-row w-full max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg">
+            {children}
+            <GameHistory />
+            <GameRouter />
+         </div>
+      </div>
+   );
 }

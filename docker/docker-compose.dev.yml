@@ -9,5 +9,23 @@ services:
       container_name: reversi-dev
       ports:
          - 3005:3000
+      environment:
+         - NEXT_PUBLIC_DEDICATED_SOCKET_SERVER=${STANDALONE_SERVER:-""}
+      env_file:
+         - ../.env
+   server:
+      image: reversi-dev-server
+      profiles:
+         - standalone
+      build:
+         context: ../
+         dockerfile: docker/Dockerfile.server.dev
+      volumes:
+         - ../src:/usr/src/app/src
+      container_name: reversi-dev-server
+      ports:
+         - 3001:3001
+      environment:
+         - NEXT_PUBLIC_DEDICATED_SOCKET_SERVER=${STANDALONE_SERVER:-""}
       env_file:
          - ../.env

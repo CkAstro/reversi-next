@@ -5,7 +5,8 @@ import type { Server as HTTPServer } from 'http';
 import { Server } from 'socket.io';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { Socket } from 'net';
-import { initConnection } from '@/lib/client/client';
+import { initConnection } from '@/lib/socket/initConnection';
+import { logger } from '@/lib/utils/logger';
 
 type NextApiResponseWS = NextApiResponse & {
    socket: Socket & {
@@ -22,20 +23,34 @@ export const config = {
 };
 
 export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
+   if (process.env.NEXT_PUBLIC_DEDICATED_SOCKET_SERVER === 'true')
+      return res.end();
+
    if (res.socket.server.io) return res.end();
-   const path = '/api/ws';
    const httpServer: HTTPServer = res.socket.server;
    const io = new Server(httpServer, {
-      path,
+      path: '/api/ws',
       addTrailingSlash: false,
       cors: {
          origin: '*',
-         methods: ['GET', 'POST'],
+      },
+      connectionStateRecovery: {
+         maxDisconnectionDuration: 2 * 60 * 1000,
+         skipMiddlewares: true,
       },
    });
 
-   io.on('connection', initConnection);
+   io.on('connection', (socket) => {
+      if (process.env.DEBUG === 'true')
+         socket.use((packet, next) => {
+            console.log('received', packet);
+            next();
+         });
 
+      initConnection(socket);
+   });
+
+   logger('socket server running on http://localhost:3000/api/ws');
    res.socket.server.io = io;
    res.end();
 }

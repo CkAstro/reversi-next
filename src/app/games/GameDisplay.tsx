@@ -1,12 +1,26 @@
 import ActiveGame from '@/app/games/ActiveGame';
-import type { ActiveGameInfo, WaitingGameInfo } from '@/types/socket';
+import { useSocket } from '@/app/games/useSocket';
+import type { ActiveGameInfo, PendingGameInfo } from '@/types/socket';
 
 interface GameDisplayProps {
    title: string;
-   games: (WaitingGameInfo | ActiveGameInfo)[];
+   type: 'new' | 'waiting' | 'active';
+   games: (PendingGameInfo | ActiveGameInfo)[];
 }
 
-export default function GameDisplay({ title, games }: GameDisplayProps) {
+export default function GameDisplay({
+   title,
+   type,
+   games = [],
+}: GameDisplayProps) {
+   const send = useSocket((s) => s.send);
+
+   const handleClick = (gameId: string) => {
+      if (type === 'waiting') send('game:join', gameId);
+      else if (type === 'active') send('game:observe', gameId);
+      else send('game:create');
+   };
+
    return (
       <div className="flex flex-col w-full gap-2 bg-slate-800 p-2">
          <h1 className="text-xl">{title}</h1>
@@ -14,9 +28,18 @@ export default function GameDisplay({ title, games }: GameDisplayProps) {
             {games.map((game) => (
                <ActiveGame
                   key={game.gameId}
+                  onClick={handleClick}
                   gameId={game.gameId}
-                  playerA={game.playerA}
-                  playerB={game.playerB}
+                  playerA={
+                     type === 'waiting'
+                        ? (game as PendingGameInfo).player
+                        : (game as ActiveGameInfo).playerA
+                  }
+                  playerB={
+                     type === 'waiting'
+                        ? null
+                        : (game as ActiveGameInfo).playerB
+                  }
                   observerCount={0}
                />
             ))}
