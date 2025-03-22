@@ -42,7 +42,7 @@ interface SocketState {
    game: string | null;
    gameType: 'active' | 'waiting' | 'replay' | 'not-found';
    boardState: Reversi['BoardState'];
-   role: Reversi['PlayerRole'] | null;
+   role: Reversi['Role'];
    opponent: Reversi['PlayerId'] | null;
    observerCount: number;
    sub: ReversiSocket['on'];

@@ -1,14 +1,14 @@
 import { Client } from '@/lib/client/Client';
-import { gameLeave } from '@/lib/socket/gameLeave';
-import { gameObserve } from '@/lib/socket/gameObserve';
-import { gameCreate } from '@/lib/socket/gameCreate';
-import { gameJoin } from '@/lib/socket/gameJoin';
-import { sessions } from '@/lib/socket/sessionStore';
 import { logger } from '@/lib/utils/logger';
+import { gameLeave } from './gameLeave';
+import { gameObserve } from './gameObserve';
+import { gameCreate } from './gameCreate';
+import { gameJoin } from './gameJoin';
+import { sessions } from './sessionStore';
+import { playerMove } from './playerMove';
+import { getBoardState } from './getBoardState';
+import { getGames } from './getGames';
 import type { ServerSocket } from '@/types/socket';
-import { playerMove } from '@/lib/socket/playerMove';
-import { getBoardState } from '@/lib/socket.old/getBoardState';
-import { getGames } from '@/lib/socket/getGames';
 
 export const initConnection = (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client

@@ -49,7 +49,7 @@ export default function ReversiBoard() {
    const handlePointerEnter = (index: number) => {
       setMouseoverIndex(index);
 
-      if (role === null || boardState[index] !== null) return;
+      if (role === null || role === 0 || boardState[index] !== null) return;
 
       const flippedPieces = getStateFlips(boardState, role, index);
       setHighlights(flippedPieces);
@@ -78,7 +78,9 @@ export default function ReversiBoard() {
                   <Highlight highlight={highlights.includes(index)} />
                   <BoardPiece
                      piece={piece}
-                     preview={mouseoverIndex === index ? role : null}
+                     preview={
+                        mouseoverIndex === index && role !== 0 ? role : null
+                     }
                   />
                </div>
             ))}

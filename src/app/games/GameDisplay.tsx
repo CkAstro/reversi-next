@@ -1,11 +1,11 @@
 import ActiveGame from '@/app/games/ActiveGame';
 import { useSocket } from '@/app/games/useSocket';
-import type { ActiveGameInfo, WaitingGameInfo } from '@/types/socket';
+import type { ActiveGameInfo, PendingGameInfo } from '@/types/socket';
 
 interface GameDisplayProps {
    title: string;
    type: 'new' | 'waiting' | 'active';
-   games: (WaitingGameInfo | ActiveGameInfo)[];
+   games: (PendingGameInfo | ActiveGameInfo)[];
 }
 
 export default function GameDisplay({
@@ -30,8 +30,16 @@ export default function GameDisplay({
                   key={game.gameId}
                   onClick={handleClick}
                   gameId={game.gameId}
-                  playerA={game.playerA}
-                  playerB={game.playerB}
+                  playerA={
+                     type === 'waiting'
+                        ? (game as PendingGameInfo).player
+                        : (game as ActiveGameInfo).playerA
+                  }
+                  playerB={
+                     type === 'waiting'
+                        ? null
+                        : (game as ActiveGameInfo).playerB
+                  }
                   observerCount={0}
                />
             ))}
