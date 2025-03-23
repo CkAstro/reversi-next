@@ -5,8 +5,6 @@ services:
       build:
          context: ../
          dockerfile: docker/Dockerfile.prod
-         args:
-            NEXT_PUBLIC_DEDICATED_SOCKET_SERVER: ${STANDALONE_SERVER}
       ports:
          - 3000:3000
       env_file:
