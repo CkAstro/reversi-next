@@ -11,7 +11,7 @@ import type {
 } from '@/types/socket';
 import type { Reversi } from '@/types/reversi';
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
-// import { socketUrl } from '@/lib/config';
+import { path } from '@/lib/config';
 
 const getAuthKey = () => {
    if (typeof window === 'undefined') return null;
@@ -25,7 +25,7 @@ const getAuthKey = () => {
 
 const createSocket = () => {
    return io(undefined, {
-      path: '/socket.io',
+      path, // ws server path - nextjs server:'/api/ws', separate server:'/socket.io'
       auth: { key: getAuthKey() },
       reconnection: true,
    });
