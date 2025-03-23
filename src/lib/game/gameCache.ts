@@ -49,6 +49,7 @@ export const upgradePendingGame = (gameId: Reversi['GameId']) => {
          `attempted to upgrade game ${gameId} to active, but one or more players were not found.`
       );
 
+   game.startGame();
    const observerCount = game.observerCount;
    activeCache.insert(gameId, { gameId, playerA, playerB, observerCount });
 };
@@ -67,6 +68,8 @@ export const upgradeActiveGame = (gameId: Reversi['GameId']) => {
       return logger(
          `attempted to upgrade game ${gameId} to complete, but one or more players were not found.`
       );
+
+   game.completeGame();
    const scores = [0, 0];
    game.getBoardState().forEach((value) => {
       if (value === 1) scores[0]++;

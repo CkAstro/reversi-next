@@ -21,6 +21,7 @@
       "webpack-node-externals": "^3.0.0"
    },
    "dependencies": {
+      "mongoose": "^8.12.2",
       "socket.io": "^4.8.1"
    }
 }

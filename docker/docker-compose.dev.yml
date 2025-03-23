@@ -23,6 +23,12 @@ services:
          - 3001:3001
       env_file:
          - ../.env
+   mongo:
+      image: mongo
+      ports:
+         - 3013:27017
+      volumes:
+         - ./docker-volume-data/mongodb:/data/mongodb
    nginx:
       image: nginx:latest
       ports:

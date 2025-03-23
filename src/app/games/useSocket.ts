@@ -63,6 +63,10 @@ export const useSocket = create<SocketState>((set) => {
       set({ game: gameId, role, opponent: opponentId });
    });
 
+   socket.on('game:end', (finalState) => {
+      set({ boardState: finalState });
+   });
+
    socket.on('server:message', (message, error) => {
       if (error) console.warn(`received error from server: ${message}`);
       else console.log(`received message from server: ${message}`);
