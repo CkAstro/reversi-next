@@ -22,9 +22,13 @@ export default function RootLayout({
          <body
             className={` ${roboto.className} antialiased w-screen h-screen flex flex-col`}
          >
-            <div className="bg-black-600 border-b-3 border-blue-900 p-4">
-               <h1 className="font-black text-2xl">CHRISTOPHER KOLB</h1>
-               <h2 className="font-black text-xl pl-8 pt-2">Reversi</h2>
+            <div className="bg-gray-800 border-b-3 border-teal-500 p-4">
+               <h1 className="font-black text-2xl text-gray-100">
+                  CHRISTOPHER KOLB
+               </h1>
+               <h2 className="font-black text-xl pl-8 pt-2 text-gray-100">
+                  Reversi
+               </h2>
             </div>
             {children}
          </body>

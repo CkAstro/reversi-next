@@ -1,9 +1,10 @@
 {
    "name": "reversi-next",
-   "version": "0.1.1",
+   "version": "0.2.2",
    "private": true,
    "scripts": {
       "dev": "next dev --turbopack",
+      "dev:local": "NEXT_PUBLIC_SERVER_ROUTE=/api/ws npm run dev",
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
@@ -16,11 +17,14 @@
       "prepare": "husky || true"
    },
    "dependencies": {
+      "@tailwindcss/postcss": "^4",
       "clsx": "^2.1.1",
       "next": "15.2.1",
       "react": "^19.0.0",
       "react-dom": "^19.0.0",
-      "@tailwindcss/postcss": "^4"
+      "socket.io": "^4.8.1",
+      "socket.io-client": "^4.8.1",
+      "zustand": "^5.0.3"
    },
    "devDependencies": {
       "@eslint/eslintrc": "^3",

@@ -1,9 +1,5 @@
-import GameBoard from '@/app/games/GameBoard';
+import Lobby from '@/app/games/Lobby';
 
 export default function Page() {
-   return (
-      <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-         <GameBoard />
-      </div>
-   );
+   return <Lobby />;
 }
