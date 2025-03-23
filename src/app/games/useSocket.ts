@@ -11,6 +11,7 @@ import type {
 } from '@/types/socket';
 import type { Reversi } from '@/types/reversi';
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
+// import { socketUrl } from '@/lib/config';
 
 const getAuthKey = () => {
    if (typeof window === 'undefined') return null;
@@ -23,15 +24,10 @@ const getAuthKey = () => {
 };
 
 const createSocket = () => {
-   const separateServer =
-      process.env.NEXT_PUBLIC_DEDICATED_SOCKET_SERVER === 'true';
-   const socketUrl = separateServer ? 'ws://localhost:3001' : undefined;
-   const path = separateServer ? undefined : '/api/ws';
-   return io(socketUrl, {
-      path,
+   return io(undefined, {
+      path: '/socket.io',
       auth: { key: getAuthKey() },
       reconnection: true,
-      addTrailingSlash: separateServer,
    });
 };
 
