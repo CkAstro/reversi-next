@@ -1,16 +1,16 @@
 {
    "name": "reversi-next",
-   "version": "0.2.1",
+   "version": "0.2.2",
    "private": true,
    "scripts": {
       "dev": "next dev --turbopack",
+      "dev:local": "NEXT_PUBLIC_SERVER_ROUTE=/api/ws npm run dev",
       "build": "next build",
       "start": "next start",
       "lint": "next lint",
       "test": "test/run-jest.sh",
       "test:commit": "jest --clearCache && jest --watchAll=false",
       "docker": "npm run docker:dev",
-      "docker:server": "STANDALONE_SERVER=true docker compose -f docker/docker-compose.dev.yml --profile standalone up",
       "docker:dev": "docker compose -f docker/docker-compose.dev.yml up",
       "docker:prod": "docker compose -f docker/docker-compose.prod.yml up",
       "spellcheck": "cspell --no-progress --dot \"**/*.{js,ts,jsx,tsx,json,html,xml,svg,css,scss,sass,md}\"",
