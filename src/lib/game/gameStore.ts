@@ -72,21 +72,22 @@ for (let i = 0; i < 30; i++) {
    });
 }
 
-const completed = await ReversiGame.find({});
-
-completed.forEach((game) => {
-   const [aScore, bScore] = game.score;
-   completedCache.insert(game.gameId, {
-      gameId: game.gameId,
-      playerA: {
-         name: !!game.playerA ? game.playerA : getPlayer('A'),
-         score: aScore,
-         role: 1,
-      },
-      playerB: {
-         name: !!game.playerB ? game.playerB : getPlayer('B'),
-         score: bScore,
-         role: -1,
-      },
+export const fetchCompletedGames = async () => {
+   const completedGames = await ReversiGame.find({});
+   completedGames.forEach(({ gameId, score, playerA, playerB }) => {
+      const [aScore, bScore] = score;
+      completedCache.insert(gameId, {
+         gameId,
+         playerA: {
+            name: !!playerA ? playerA : getPlayer('A'), // random
+            score: aScore,
+            role: 1,
+         },
+         playerB: {
+            name: !!playerB ? playerB : getPlayer('B'),
+            score: bScore,
+            role: -1,
+         },
+      });
    });
-});
+};
