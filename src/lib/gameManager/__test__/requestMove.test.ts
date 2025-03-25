@@ -1,9 +1,14 @@
 import { requestMove } from '../requestMove';
 import { getGame } from '@/lib/game/gameCache';
 import type { Client } from '@/lib/client/Client';
+import { upgradeGame } from '@/lib/gameManager/upgradeGame';
 
 jest.mock('@/lib/game/gameCache', () => ({
    getGame: jest.fn(),
+}));
+
+jest.mock('@/lib/gameManager/upgradeGame', () => ({
+   upgradeGame: jest.fn(),
 }));
 
 describe('observe', () => {
@@ -93,6 +98,7 @@ describe('observe', () => {
       const callback = jest.fn();
 
       requestMove('goodGameId', mockRole, mockMove, callback);
+      expect(upgradeGame).toHaveBeenCalledWith('goodGameId', 'active');
       expect(mockGame.isGameOver).toHaveBeenCalled();
       expect(mockGame.getScore).toHaveBeenCalled();
       expect(callback).toHaveBeenCalledWith(

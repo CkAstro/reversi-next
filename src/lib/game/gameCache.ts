@@ -6,6 +6,7 @@ import {
    pendingCache,
    activeCache,
    completedCache,
+   saveToDatabase,
 } from '@/lib/game/gameStore';
 import type {
    ActiveGameInfo,
@@ -70,6 +71,8 @@ export const upgradeActiveGame = (gameId: Reversi['GameId']) => {
       );
 
    game.completeGame();
+   saveToDatabase(game);
+
    const scores = [0, 0];
    game.getBoardState().forEach((value) => {
       if (value === 1) scores[0]++;

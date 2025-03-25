@@ -7,31 +7,31 @@ jest.mock('@/lib/utils/logger', () => ({
    logger: jest.fn(),
 }));
 
-describe('Game - startGame', () => {
+describe('Game - completeGame', () => {
    test('sets status and start time', () => {
       jest.spyOn(Date, 'now').mockImplementation(() => 1234);
       const mockGame = {
          _currentStatus: 'active',
-         _startTime: null as number | null,
+         _endTime: null as number | null,
       } as Game;
 
       completeGame.call(mockGame);
 
       expect(logger).not.toHaveBeenCalled();
       expect(mockGame._currentStatus).toBe('complete');
-      expect(mockGame._startTime).toBe(1234);
+      expect(mockGame._endTime).toBe(1234);
    });
 
    test('logs and returns if status is not active', () => {
       const mockGame = {
          _currentStatus: 'pending',
-         _startTime: null as number | null,
+         _endTime: null as number | null,
       } as Game;
 
       completeGame.call(mockGame);
 
       expect(logger).toHaveBeenCalled();
       expect(mockGame._currentStatus).toBe('pending');
-      expect(mockGame._startTime).toBe(null);
+      expect(mockGame._endTime).toBe(null);
    });
 });

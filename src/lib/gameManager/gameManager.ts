@@ -4,7 +4,6 @@ import {
    getCompletedGames,
 } from '@/lib/game/gameCache';
 import type { GameInfoResponse } from '@/types/socket';
-import { complete } from './complete';
 import { requestMove } from './requestMove';
 import { observe } from './observe';
 import { leave } from './leave';
@@ -26,5 +25,4 @@ export const gameManager = {
    observe,
    getBoardState,
    requestMove,
-   complete,
 };
