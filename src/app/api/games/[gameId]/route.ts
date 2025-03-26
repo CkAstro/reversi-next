@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ReversiGame } from '@/lib/mongodb/reversiGame';
+import { connectToDatabase } from '@/lib/mongodb/mongoose';
 
 interface Params {
    params: {
@@ -8,8 +9,12 @@ interface Params {
 }
 
 export async function GET(req: Request, { params }: Params) {
-   const { gameId } = params;
-   const game = await ReversiGame.findOne({ gameId });
+   const { gameId } = await params;
+   await connectToDatabase();
+   console.log('looking for game', gameId);
+   const game = await ReversiGame.findOne({ gameId })
+      .select('finalState -_id')
+      .lean();
    console.log('game', game);
 
    if (!game)

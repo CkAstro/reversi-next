@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { type MongooseError } from 'mongoose';
 import { mongoUri } from '@/lib/config';
 import { logger } from '@/lib/utils/logger';
 
@@ -21,10 +21,6 @@ export const connectToDatabase = async () => {
       mongo.connection = await mongo.promise;
       return mongo.connection;
    } catch (error) {
-      logger(
-         'error connecting to database:',
-         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-         (error as { message?: string })?.message ?? error
-      );
+      logger('error connecting to database:', (error as MongooseError).message);
    }
 };

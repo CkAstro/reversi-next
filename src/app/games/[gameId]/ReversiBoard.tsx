@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { useSocket } from '@/app/games/useSocket';
 import { getStateFlips } from '@/lib/boardState/getStateFlips';
 import type { Reversi } from '@/types/reversi';
+import { GamePiece } from '@/ui/reversi/GamePiece';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div
@@ -14,24 +15,6 @@ const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
       )}
    />
 );
-
-const BoardPiece: React.FC<{
-   piece: 1 | -1 | null;
-   preview: 1 | -1 | null;
-}> = ({ piece, preview }) => {
-   if (piece === null && preview === null) return null;
-
-   return (
-      <div
-         className={clsx(
-            'absolute top-1/10 left-1/10 right-1/10 bottom-1/10 rounded-full',
-            piece === null && 'opacity-50',
-            (piece ?? preview) === 1 && 'bg-black',
-            (piece ?? preview) === -1 && 'bg-white'
-         )}
-      />
-   );
-};
 
 export default function ReversiBoard() {
    const boardState = useSocket((s) => s.boardState);
@@ -95,7 +78,7 @@ export default function ReversiBoard() {
                   onPointerLeave={handlePointerLeave}
                >
                   <Highlight highlight={highlights.includes(index)} />
-                  <BoardPiece
+                  <GamePiece
                      piece={piece}
                      preview={
                         mouseoverIndex === index && role !== 0 ? role : null

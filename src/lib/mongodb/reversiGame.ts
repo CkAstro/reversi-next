@@ -27,4 +27,7 @@ const reversiGameSchema = new mongoose.Schema<SavedGame>({
    endTime: Number,
 });
 
-export const ReversiGame = mongoose.model('ReversiGame', reversiGameSchema);
+export const ReversiGame =
+   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+   mongoose.models.ReversiGame ||
+   mongoose.model('ReversiGame', reversiGameSchema);
