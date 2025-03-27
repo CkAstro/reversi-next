@@ -55,7 +55,7 @@ export function createRemoveFromPending(redis: Redis) {
 }
 
 export function createGetPending(redis: Redis) {
-   /** get pagenated list of pending games from cache
+   /** get paginated list of pending games from cache
     * @param count number of games to return
     * @param page page of games to return
     */

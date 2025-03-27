@@ -8,12 +8,12 @@ import { playerMove } from './playerMove';
 import { getBoardState } from './getBoardState';
 import { getGames } from './getGames';
 import type { ServerSocket } from '@/types/socket';
-import { getSesson } from '@/lib/redis/sessions';
+import { getSession } from '@/lib/redis/sessions';
 
 export const initConnection = async (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
    const { key: authKey, username = '' } = socket.handshake.auth;
-   const playerId = await getSesson(authKey, username);
+   const playerId = await getSession(authKey, username);
    const client = new Client(playerId, socket);
    logger(`client ${playerId} connected (user: ${username})`);
 

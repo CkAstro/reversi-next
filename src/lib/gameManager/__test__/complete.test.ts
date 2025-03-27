@@ -1,13 +1,13 @@
 /** @jest-environment node */
 
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 import { complete } from '../complete';
 import type { Game } from '@/lib/game/Game';
 import { connectToDatabase } from '@/lib/mongodb/mongoose';
 import { ReversiGame } from '@/lib/mongodb/reversiGame';
 import { logger } from '@/lib/utils/logger';
 
-jest.mock('@/lib/game/gameCache', () => ({
+jest.mock('@/lib/game/cacheInterface', () => ({
    getGame: jest.fn(),
 }));
 

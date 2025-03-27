@@ -50,5 +50,5 @@ const getSessionId = async (
  *    'uniqueKey:user2', 'pId-2',
  * }
  */
-export const getSesson = (authKey: string, username = '') =>
+export const getSession = (authKey: string, username = '') =>
    getRedisClient().then((redis) => getSessionId(redis, authKey, username));

@@ -3,9 +3,9 @@ import {
    getGame,
    upgradeActiveGame,
    upgradePendingGame,
-} from '@/lib/game/gameCache';
+} from '@/lib/game/cacheInterface';
 
-jest.mock('@/lib/game/gameCache', () => ({
+jest.mock('@/lib/game/cacheInterface', () => ({
    getGame: jest.fn(),
    upgradePendingGame: jest.fn(),
    upgradeActiveGame: jest.fn(),

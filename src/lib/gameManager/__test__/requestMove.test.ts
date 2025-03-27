@@ -1,9 +1,9 @@
 import { requestMove } from '../requestMove';
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 import type { Client } from '@/lib/client/Client';
 import { upgradeGame } from '@/lib/gameManager/upgradeGame';
 
-jest.mock('@/lib/game/gameCache', () => ({
+jest.mock('@/lib/game/cacheInterface', () => ({
    getGame: jest.fn(),
 }));
 

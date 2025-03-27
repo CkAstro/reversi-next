@@ -66,7 +66,7 @@ export function createRemoveFromComplete(redis: Redis) {
 }
 
 export function createGetComplete(redis: Redis) {
-   /** get pagenated list of complete games from cache
+   /** get paginated list of complete games from cache
     * @param count number of games to return
     * @param page page of games to return
     */

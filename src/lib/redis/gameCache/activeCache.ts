@@ -66,7 +66,7 @@ export function createRemoveFromActive(redis: Redis) {
 }
 
 export function createGetActive(redis: Redis) {
-   /** get pagenated list of active games from cache
+   /** get paginated list of active games from cache
     * @param count number of games to return
     * @param page page of games to return
     */

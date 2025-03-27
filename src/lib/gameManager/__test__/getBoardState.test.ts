@@ -1,7 +1,7 @@
 import { getBoardState } from '../getBoardState';
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 
-jest.mock('@/lib/game/gameCache', () => ({
+jest.mock('@/lib/game/cacheInterface', () => ({
    getGame: jest.fn(),
 }));
 
