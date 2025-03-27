@@ -2,7 +2,7 @@ import {
    getGame,
    upgradeActiveGame,
    upgradePendingGame,
-} from '@/lib/game/gameCache';
+} from '@/lib/game/cacheInterface';
 import type { Reversi } from '@/types/reversi';
 
 export const upgradeGame = (

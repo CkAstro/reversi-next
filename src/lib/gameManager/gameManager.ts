@@ -2,7 +2,7 @@ import {
    getPendingGames,
    getActiveGames,
    getCompletedGames,
-} from '@/lib/game/gameCache';
+} from '@/lib/game/cacheInterface';
 import type { GameInfoResponse } from '@/types/socket';
 import { requestMove } from './requestMove';
 import { observe } from './observe';
@@ -11,11 +11,17 @@ import { join } from './join';
 import { create } from './create';
 import { getBoardState } from './getBoardState';
 
-const getLobby = (): GameInfoResponse => ({
-   pending: getPendingGames(),
-   active: getActiveGames(30),
-   complete: getCompletedGames(30),
-});
+const getLobby = async (): Promise<GameInfoResponse> => {
+   const pending = await getPendingGames();
+   const active = await getActiveGames();
+   const complete = await getCompletedGames();
+
+   return {
+      pending,
+      active,
+      complete,
+   };
+};
 
 export const gameManager = {
    getLobby,

@@ -1,4 +1,4 @@
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 import { connectToDatabase } from '@/lib/mongodb/mongoose';
 import { ReversiGame } from '@/lib/mongodb/reversiGame';
 import { logger } from '@/lib/utils/logger';

@@ -1,6 +1,6 @@
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
 import type { Client } from '@/lib/client/Client';
-import { addPendingGame } from './gameCache';
+import { addPendingGame } from './cacheInterface';
 import { getRandomId } from '@/lib/utils/getRandomId';
 import type { Reversi } from '@/types/reversi';
 import { assignToGame } from './assignToGame';
