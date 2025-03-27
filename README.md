@@ -1,6 +1,9 @@
 # Reversi
 
-A Reversi game built with Next.js and WebSocket.
+An interactive Reversi platform where users can join the lobby and view live games, replays, start a new match, or join one waiting for an opponent. Built with Next.js and WebSockets for real-time gameplay.
+
+Completed games are stored in MongoDB, while Redis is used to cache waiting, active, and completed games for fast access
+when the user is in the lobby.
 
 ### Running the Project
 
