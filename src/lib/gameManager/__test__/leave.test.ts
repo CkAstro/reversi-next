@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 import { leave } from '../leave';
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 import type { Client } from '@/lib/client/Client';
 
-jest.mock('@/lib/game/gameCache', () => ({
+jest.mock('@/lib/game/cacheInterface', () => ({
    getGame: jest.fn(),
 }));
 

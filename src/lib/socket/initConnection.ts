@@ -4,16 +4,16 @@ import { gameLeave } from './gameLeave';
 import { gameObserve } from './gameObserve';
 import { gameCreate } from './gameCreate';
 import { gameJoin } from './gameJoin';
-import { sessions } from './sessionStore';
 import { playerMove } from './playerMove';
 import { getBoardState } from './getBoardState';
 import { getGames } from './getGames';
 import type { ServerSocket } from '@/types/socket';
+import { getSession } from '@/lib/redis/sessions';
 
-export const initConnection = (socket: ServerSocket) => {
+export const initConnection = async (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
    const { key: authKey, username = '' } = socket.handshake.auth;
-   const playerId = sessions.get(authKey, username);
+   const playerId = await getSession(authKey, username);
    const client = new Client(playerId, socket);
    logger(`client ${playerId} connected (user: ${username})`);
 

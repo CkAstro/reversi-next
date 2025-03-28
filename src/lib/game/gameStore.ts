@@ -1,30 +1,37 @@
 import { OrderedCache } from '@/lib/game/OrderedCache';
 import type { Game } from '@/lib/game/Game';
 import type { Reversi } from '@/types/reversi';
-import type {
-   ActiveGameInfo,
-   CompletedGameInfo,
-   PendingGameInfo,
-} from '@/types/socket';
+import { ReversiGame, type SavedGame } from '@/lib/mongodb/reversiGame';
+import { logger } from '@/lib/utils/logger';
+import { connectToDatabase } from '@/lib/mongodb/mongoose';
+import { getGameCache } from '@/lib/redis/gameCache';
 
-// eventually move these to redis/mongo storage
-export const gameCache = new OrderedCache<Reversi['GameId'], Game>();
-export const pendingCache = new OrderedCache<
-   Reversi['GameId'],
-   PendingGameInfo
->();
-export const activeCache = new OrderedCache<
-   Reversi['GameId'],
-   ActiveGameInfo
->();
-export const completedCache = new OrderedCache<
-   Reversi['GameId'],
-   CompletedGameInfo
->();
+export const liveGames = new OrderedCache<Reversi['GameId'], Game>();
+
+export const saveToDatabase = (game: Game) => {
+   const [playerA, playerB] = game.getPlayers();
+   const score = game.getScore();
+   const winner = score[1] < score[0] ? 1 : score[0] < score[1] ? -1 : 0;
+
+   const completedGame = new ReversiGame({
+      gameId: game.gameId,
+      moveHistory: game.getReducedHistory(),
+      finalState: game.getBoardState(),
+      playerA: playerA ?? '',
+      playerB: playerB ?? '',
+      firstTurn: game.firstTurn,
+      winner,
+      score,
+   });
+
+   completedGame.save().then(() => {
+      logger(`game ${game.gameId} successfully saved to database`);
+   });
+};
 
 const playerAList = ['playerA', 'player 1', 'player N', 'test player'];
 const playerBList = ['playerB', 'player 2', 'player M', 'other player'];
-const getPlayer = (list?: 'A' | 'B'): string =>
+export const getPlayer = (list?: 'A' | 'B'): string =>
    list === 'A'
       ? playerAList[Math.floor(Math.random() * playerAList.length)]
       : list === 'B'
@@ -33,25 +40,40 @@ const getPlayer = (list?: 'A' | 'B'): string =>
       ? getPlayer('A')
       : getPlayer('B');
 
-for (let i = 0; i < 2; i++) {
-   pendingCache.insert(`pending${i}`, {
-      gameId: `pending${i}`,
-      player: getPlayer(),
-   });
-}
+const cacheStatus = {
+   promise: null as Promise<
+      Pick<SavedGame, 'gameId' | 'score' | 'playerA' | 'playerB'>[]
+   > | null,
+   isLoaded: false,
+};
 
-for (let i = 0; i < 30; i++) {
-   activeCache.insert(`active${i}`, {
-      gameId: `active${i}`,
-      playerA: getPlayer('A'),
-      playerB: getPlayer('B'),
-      observerCount: Math.floor(Math.random() * 5),
-   });
+export const fetchCompletedGames = async () => {
+   if (cacheStatus.isLoaded) return;
 
-   const score = Math.floor(Math.random() * 50) + 5;
-   completedCache.insert(`completed${i}`, {
-      gameId: `completed${i}`,
-      playerA: { name: getPlayer('A'), role: 1, score },
-      playerB: { name: getPlayer('B'), role: -1, score: 64 - score },
-   });
-}
+   if (cacheStatus.promise === null) {
+      await connectToDatabase();
+      logger('fetching games from database');
+
+      cacheStatus.promise = ReversiGame.find({})
+         .sort({ endTime: -1 })
+         .limit(10)
+         .select('gameId score playerA playerB -_id')
+         .exec();
+   }
+
+   try {
+      const cache = await getGameCache();
+      const completedGames = await cacheStatus.promise;
+      console.log('adding to cache!!', completedGames.length);
+      completedGames
+         .reverse()
+         .forEach(({ gameId, playerA, playerB, score }) => {
+            cache.addToComplete(gameId, playerA, playerB, score);
+         });
+
+      cacheStatus.isLoaded = true;
+      return;
+   } catch {
+      return logger('unable to retrieve games from db.');
+   }
+};

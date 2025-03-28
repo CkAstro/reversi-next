@@ -47,6 +47,7 @@ export type ServerError =
    | 'SOCKET_ERROR'
    | 'SERVER_ERROR'
    | 'GAME_NOT_FOUND'
+   | 'GAME_NOT_ACTIVE'
    | 'GAME_FULL'
    | 'INVALID_MOVE';
 
@@ -62,10 +63,14 @@ export interface ResponsePayload {
       opponentId?: Reversi['PlayerId']
    ) => void;
    'game:leave': (redirect: string) => void;
-   'game:over': (message: string) => void;
+   // 'game:over': (message: string) => void;
    'game:playerJoin': (username: string, role: Reversi['Role']) => void;
    'game:playerLeave': (username: string, role: Reversi['Role']) => void;
    'game:update': (response: unknown) => void;
+   'game:end': (
+      finalState: Reversi['BoardState'],
+      winner: Reversi['PlayerRole'] | 0
+   ) => void;
    'server:message': (message: string, error?: string) => void;
    'server:error': (error: ServerError, message: string) => void;
 }

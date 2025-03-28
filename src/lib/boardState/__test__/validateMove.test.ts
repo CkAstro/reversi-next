@@ -1,4 +1,5 @@
-import { validateMove, _forTesting } from '../validateMove';
+import { validateMove, _forTesting, isValidateMove } from '../validateMove';
+import type { Reversi } from '@/types/reversi';
 
 const flipState = (state: (1 | -1 | null)[], index: number): 1 | -1 | null => {
    const flippedValue =
@@ -112,5 +113,43 @@ describe('validateMove - firstFourRounds', () => {
 
       // fifth move should require a flip
       expect(validateMove(nextState, 26, player, 4)); // will not produce a flip
+   });
+});
+
+describe('isValidMove', () => {
+   const boardState: Reversi['BoardState'] = Array.from(
+      { length: 64 },
+      () => null
+   );
+   beforeEach(() => {
+      for (let i = 0; i < 64; i++) boardState[i] = null;
+   });
+
+   test('returns true if a flip is present', () => {
+      boardState[0] = 1;
+      boardState[1] = -1;
+      expect(isValidateMove(boardState, 2, 1)).toBe(true);
+   });
+
+   test('returns false if no flip is present', () => {
+      boardState[0] = 1;
+      expect(isValidateMove(boardState, 1, -1)).toBe(false);
+   });
+
+   test('returns false on blank board', () => {
+      expect(isValidateMove(boardState, 1, 1)).toBe(false);
+   });
+
+   test('returns false on full board', () => {
+      boardState.forEach((_, i) => (boardState[i] = 1));
+      expect(isValidateMove(boardState, 1, -1)).toBe(false);
+   });
+
+   test('returns true on nearly-full board', () => {
+      boardState.forEach(
+         (_, i) => (boardState[i] = i === 0 ? null : i === 63 ? -1 : 1)
+      );
+      expect(isValidateMove(boardState, 0, 1)).toBe(false);
+      expect(isValidateMove(boardState, 0, -1)).toBe(true);
    });
 });

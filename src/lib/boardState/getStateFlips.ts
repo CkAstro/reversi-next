@@ -24,7 +24,7 @@ const buildIndexTree = () => {
 };
 const indexTree = buildIndexTree(); // how to determine size in memory
 
-const getFlipsInDirection = (
+export const getFlipsInDirection = (
    gameState: GamePieceState[],
    target: 1 | -1,
    startIndex: number,

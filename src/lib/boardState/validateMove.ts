@@ -1,4 +1,7 @@
-import { getStateFlips } from '@/lib/boardState/getStateFlips';
+import {
+   getFlipsInDirection,
+   getStateFlips,
+} from '@/lib/boardState/getStateFlips';
 
 type GamePieceState = 1 | -1 | null;
 
@@ -43,6 +46,23 @@ export const validateMove = (
    const flips = getStateFlips(boardState, player, moveIndex);
    if (flips.length === 0) return null;
    return updateGameState(boardState, flips, moveIndex, player);
+};
+
+/** Determine if move is valid without retrieving actual state flips
+ * @param boardState the Reversi board state
+ * @param moveIndex the game square to validate
+ * @param player which player is placing the piece (1 | -1)
+ */
+export const isValidateMove = (
+   boardState: GamePieceState[],
+   moveIndex: number,
+   player: 1 | -1
+): boolean => {
+   for (let i = 0; i < 8; i++) {
+      const flips = getFlipsInDirection(boardState, player, moveIndex, i);
+      if (flips.length > 0) return true;
+   }
+   return false;
 };
 
 export const _forTesting = {
