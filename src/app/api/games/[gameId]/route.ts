@@ -11,11 +11,9 @@ interface Params {
 export async function GET(req: Request, { params }: Params) {
    const { gameId } = await params;
    await connectToDatabase();
-   console.log('looking for game', gameId);
    const game = await ReversiGame.findOne({ gameId })
       .select('finalState -_id')
       .lean();
-   console.log('game', game);
 
    if (!game)
       return NextResponse.json({ error: 'Game not found.' }, { status: 404 });

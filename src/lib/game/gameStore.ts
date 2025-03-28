@@ -64,7 +64,6 @@ export const fetchCompletedGames = async () => {
    try {
       const cache = await getGameCache();
       const completedGames = await cacheStatus.promise;
-      console.log('adding to cache!!', completedGames.length);
       completedGames
          .reverse()
          .forEach(({ gameId, playerA, playerB, score }) => {
