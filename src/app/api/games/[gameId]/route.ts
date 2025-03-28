@@ -3,9 +3,9 @@ import { ReversiGame } from '@/lib/mongodb/reversiGame';
 import { connectToDatabase } from '@/lib/mongodb/mongoose';
 
 interface Params {
-   params: {
+   params: Promise<{
       gameId: string;
-   };
+   }>;
 }
 
 export async function GET(req: Request, { params }: Params) {
