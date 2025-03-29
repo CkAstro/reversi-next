@@ -85,7 +85,8 @@ export type ServerError =
    | 'GAME_NOT_FOUND'
    | 'GAME_NOT_ACTIVE'
    | 'GAME_FULL'
-   | 'INVALID_MOVE';
+   | 'INVALID_MOVE'
+   | 'INVALID_USERNAME';
 
 type ServerMessageResponse = (error: string | null, message: string) => void;
 type ServerErrorResponse = (error: ServerError, message: string) => void;

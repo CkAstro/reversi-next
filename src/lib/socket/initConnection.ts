@@ -5,10 +5,11 @@ import { gameObserve } from './gameObserve';
 import { gameCreate } from './gameCreate';
 import { gameJoin } from './gameJoin';
 import { playerMove } from './playerMove';
-import { fetchLobby } from '@/lib/socket/fetchLobby';
-import { fetchBoardState } from '@/lib/socket/fetchBoardState';
-import type { ServerSocket } from '@/types/socket';
+import { fetchLobby } from './fetchLobby';
+import { fetchBoardState } from './fetchBoardState';
+import { setUsername } from './setUsername';
 import { getSession } from '@/lib/redis/sessions';
+import type { ServerSocket } from '@/types/socket';
 
 export const initConnection = async (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
@@ -41,5 +42,5 @@ export const initConnection = async (socket: ServerSocket) => {
    socket.on('fetch:chat', () => undefined);
    socket.on('fetch:boardState', fetchBoardState(client));
 
-   socket.on('set:username', () => undefined);
+   socket.on('set:username', setUsername(client));
 };

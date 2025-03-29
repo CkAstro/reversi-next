@@ -57,4 +57,16 @@ export class Client {
    ) {
       this.socket.emit(event, ...payload);
    }
+
+   public getAuthKey() {
+      return this.socket.handshake.auth.key;
+   }
+
+   public updateInfo(
+      playerId: Reversi['PlayerId'],
+      username: Reversi['Username']
+   ) {
+      this.id = playerId;
+      this._username = username;
+   }
 }
