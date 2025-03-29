@@ -57,7 +57,7 @@ export const playerMove: SocketHandler['player:move'] =
 
             if (winner === null) {
                clients.forEach((participant) => {
-                  participant.send('get:boardState', boardState, turn);
+                  participant.send('fetch:boardState', boardState, turn);
                });
             } else {
                clients.forEach((participant) => {

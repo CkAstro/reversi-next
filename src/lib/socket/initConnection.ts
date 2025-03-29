@@ -5,8 +5,8 @@ import { gameObserve } from './gameObserve';
 import { gameCreate } from './gameCreate';
 import { gameJoin } from './gameJoin';
 import { playerMove } from './playerMove';
-import { getBoardState } from './getBoardState';
-import { getGames } from './getGames';
+import { fetchLobby } from '@/lib/socket/fetchLobby';
+import { fetchBoardState } from '@/lib/socket/fetchBoardState';
 import type { ServerSocket } from '@/types/socket';
 import { getSession } from '@/lib/redis/sessions';
 
@@ -32,9 +32,14 @@ export const initConnection = async (socket: ServerSocket) => {
    socket.on('game:leave', gameLeave(client));
    socket.on('game:create', gameCreate(client));
    socket.on('game:observe', gameObserve(client));
+   socket.on('game:replay', () => undefined);
 
    socket.on('player:move', playerMove(client));
+   socket.on('player:chat', () => undefined);
 
-   socket.on('get:games', getGames(client));
-   socket.on('get:boardState', getBoardState(client));
+   socket.on('fetch:lobby', fetchLobby(client));
+   socket.on('fetch:chat', () => undefined);
+   socket.on('fetch:boardState', fetchBoardState(client));
+
+   socket.on('set:username', () => undefined);
 };

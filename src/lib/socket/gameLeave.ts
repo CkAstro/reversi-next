@@ -20,10 +20,10 @@ export const gameLeave: SocketHandler['game:leave'] = (client) => (gameId) => {
          }
 
          client.send('game:leave', '/games');
-         opponent?.send('game:playerLeave', client.username, role);
+         opponent?.send('game:userLeave', client.username, role);
          observers?.forEach((observer) => {
             if (observer.playerId === client.playerId) return;
-            observer.send('game:playerLeave', client.username, role);
+            observer.send('game:userLeave', client.username, role);
          });
 
          logger(

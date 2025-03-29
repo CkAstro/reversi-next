@@ -15,10 +15,22 @@ export default function Lobby() {
    const activeGames = useSocket((s) => s.activeGames);
    const pendingGames = useSocket((s) => s.pendingGames);
    const send = useSocket((s) => s.send);
+   const sub = useSocket((s) => s.sub);
+   const unsub = useSocket((s) => s.unsub);
 
    useEffect(() => {
-      send('get:games');
-   }, [send]);
+      const handleFetchLobby = () => undefined;
+      sub('fetch:lobby', handleFetchLobby);
+
+      const handleLobbyUpdate = () => undefined;
+      sub('update:lobby', handleLobbyUpdate);
+
+      send('fetch:lobby');
+      return () => {
+         unsub('fetch:lobby', handleFetchLobby);
+         unsub('update:lobby', handleLobbyUpdate);
+      };
+   }, [send, sub, unsub]);
 
    return (
       <div className="w-full h-full flex flex-col gap-2">

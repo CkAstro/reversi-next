@@ -12,11 +12,11 @@ export const gameJoin: SocketHandler['game:join'] = (client) => (gameId) => {
          return;
       }
 
-      client.send('game:join', gameId, role, client.opponent?.username);
-      opponent?.send('game:playerJoin', client.username, role);
+      client.send('game:join', gameId, role, client.opponent?.username ?? null);
+      opponent?.send('game:userJoin', client.username, role);
       observers?.forEach((observer) => {
          if (observer.playerId === client.playerId) return;
-         observer.send('game:playerJoin', client.username, role);
+         observer.send('game:userJoin', client.username, role);
       });
 
       logger(`player ${client.playerId} joined game ${gameId} (role: ${role})`);

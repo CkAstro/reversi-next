@@ -13,10 +13,10 @@ export const gameObserve: SocketHandler['game:observe'] =
             return;
          }
 
-         client.send('game:join', gameId, role);
+         client.send('game:join', gameId, role, null);
          observers?.forEach((observer) => {
             if (observer.playerId === client.playerId) return;
-            observer.send('game:playerJoin', client.username, role);
+            observer.send('game:userJoin', client.username, role);
          });
 
          logger(

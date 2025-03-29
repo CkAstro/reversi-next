@@ -51,7 +51,33 @@ export const useSocket = create<SocketState>((set) => {
    socket.on('connect', () => console.log('connected to server'));
    socket.on('disconnect', () => console.log('disconnected from server'));
 
-   socket.on('get:games', ({ active, complete, pending }) => {
+   socket.on('server:message', (message, error) => {
+      if (error) console.warn(`received error from server: ${message}`);
+      else console.log(`received message from server: ${message}`);
+   });
+
+   socket.on('server:error', (error, message) => {
+      //
+   });
+
+   socket.on('game:join', (gameId, role, opponentId) => {
+      set({ game: gameId, role, opponent: opponentId });
+   });
+
+   socket.on('game:leave', () => undefined);
+   socket.on('game:end', () => undefined);
+
+   socket.on('game:userJoin', () => undefined);
+   socket.on('game:userLeave', () => undefined);
+
+   socket.on('update:lobby', (response) => {
+      // add/remove games based on response
+   });
+
+   socket.on('update:chat', () => undefined);
+   socket.on('update:boardState', () => undefined);
+
+   socket.on('fetch:lobby', ({ active, complete, pending }) => {
       set({
          activeGames: active,
          pendingGames: pending,
@@ -59,20 +85,10 @@ export const useSocket = create<SocketState>((set) => {
       });
    });
 
-   socket.on('game:join', (gameId, role, opponentId) => {
-      set({ game: gameId, role, opponent: opponentId });
-   });
+   socket.on('fetch:chat', () => undefined);
+   socket.on('fetch:boardState', () => undefined);
 
-   socket.on('game:end', (finalState) => {
-      set({ boardState: finalState });
-   });
-
-   socket.on('server:message', (message, error) => {
-      if (error) console.warn(`received error from server: ${message}`);
-      else console.log(`received message from server: ${message}`);
-   });
-
-   socket.on('get:boardState', (boardState) => set({ boardState }));
+   socket.on('set:username', () => undefined);
 
    return {
       activeGames: [],
