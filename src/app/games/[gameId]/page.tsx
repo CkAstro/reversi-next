@@ -1,7 +1,7 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
 import { useEffect, useRef } from 'react';
 import ReversiBoard from '@/app/games/[gameId]/ReversiBoard';
 
@@ -20,7 +20,7 @@ export default function Page(props: { params: Promise<{ gameId: string }> }) {
          if (gameIdRef.current === gameId) return;
          gameIdRef.current = gameId;
 
-         send('get:boardState', gameId);
+         send('fetch:boardState', gameId);
       });
    }, [props, send]);
 

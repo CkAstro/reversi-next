@@ -1,6 +1,6 @@
 'use client';
 
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 

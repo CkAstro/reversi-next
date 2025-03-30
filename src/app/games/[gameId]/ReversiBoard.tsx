@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
 import { getStateFlips } from '@/lib/boardState/getStateFlips';
 import type { Reversi } from '@/types/reversi';
 import { GamePiece } from '@/ui/reversi/GamePiece';
@@ -49,7 +49,7 @@ export default function ReversiBoard() {
    useEffect(() => {
       const handleGameOver = (
          _finalBoardState: Reversi['BoardState'],
-         winner: Reversi['PlayerRole'] | 0
+         winner: Reversi['Role']
       ) => {
          if (winner === 0) console.log("Game over: It's a tie!");
          else if (winner === role) console.log('Game over: You win!');

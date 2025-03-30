@@ -11,7 +11,8 @@
       "lrem",
       "lpush",
       "hget",
-      "hset"
+      "hset",
+      "partialize"
    ],
    "ignorePaths": ["package.json", "package-lock.json"],
    "useGitignore": true,

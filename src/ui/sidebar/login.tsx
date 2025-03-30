@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
+import { nameStore } from '@/store/nameStore';
 import { Dropdown } from '@/ui/components/dropdown';
 import type { ServerError } from '@/types/socket';
 
@@ -9,6 +10,10 @@ export default function Login() {
    const send = useSocket((s) => s.send);
    const subscribe = useSocket((s) => s.sub);
    const unsubscribe = useSocket((s) => s.unsub);
+
+   const username = nameStore((s) => s.username);
+   const usernameList = nameStore((s) => s.nameList);
+   const setUsername = nameStore((s) => s.setUsername);
 
    const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -37,9 +42,26 @@ export default function Login() {
       };
    }, [subscribe, unsubscribe]);
 
+   const [selectedUser, setSelectedUser] = useState('');
+   const [nameList, setNameList] = useState<string[]>([]);
+   useEffect(() => {
+      setSelectedUser(username);
+   }, [username]);
+
+   useEffect(() => {
+      setNameList(usernameList);
+   }, [usernameList]);
+
+   const handleSelectUsername = (index: number) => {
+      const name = usernameList[index];
+      setUsername(name);
+   };
+
    return (
       <div className="flex flex-col gap-2 bg-gray-800 rounded-xl p-2">
-         <span>Welcome!</span>
+         <span>
+            {selectedUser === '' ? 'Welcome!' : `Welcome ${username}!`}
+         </span>
          <form onSubmit={handleSubmitUsername} className="relative">
             <input
                className="bg-gray-700 rounded px-2 w-full"
@@ -68,13 +90,9 @@ export default function Login() {
             )}
          </form>
          <Dropdown
-            options={[
-               '--Previous Usernames--',
-               'option 1',
-               'option 2',
-               'option 3',
-            ]}
-            onSelect={() => undefined}
+            options={nameList}
+            placeholder="--Previous Usernames--"
+            onSelect={handleSelectUsername}
          />
       </div>
    );

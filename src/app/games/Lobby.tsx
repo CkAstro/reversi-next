@@ -1,7 +1,7 @@
 'use client';
 
 import ActiveGame from '@/app/games/ActiveGame';
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
 import GridDisplay from '@/ui/GridDisplay';
 import { useEffect } from 'react';
 

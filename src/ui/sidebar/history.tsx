@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useSocket } from '@/app/games/useSocket';
+import { useSocket } from '@/store/gameStore';
 import { Expandable } from '@/ui/components/expandable';
 import { GamePiece } from '@/ui/reversi/GamePiece';
 import type { Reversi } from '@/types/reversi';
@@ -33,7 +33,7 @@ export default function History() {
    const unsub = useSocket((s) => s.unsub);
 
    useEffect(() => {
-      const handleReceiveHistory: ResponsePayload['get:games'] = ({
+      const handleReceiveHistory: ResponsePayload['fetch:lobby'] = ({
          complete,
       }) => {
          complete.forEach(async ({ gameId }) => {
@@ -48,9 +48,9 @@ export default function History() {
          });
       };
 
-      sub('get:games', handleReceiveHistory);
+      sub('fetch:lobby', handleReceiveHistory);
       return () => {
-         unsub('get:games', handleReceiveHistory);
+         unsub('fetch:lobby', handleReceiveHistory);
       };
    }, [sub, unsub]);
 
