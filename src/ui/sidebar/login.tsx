@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSocket } from '@/store/gameStore';
+import { useCallback, useEffect, useState } from 'react';
 import { nameStore } from '@/store/nameStore';
 import { Dropdown } from '@/ui/components/dropdown';
-import type { ServerError } from '@/types/socket';
+import { useSendMessage } from '@/hooks/useSendMessage';
+import { useOnMessage } from '@/hooks/useOnMessage';
+import type { ResponsePayload } from '@/types/socket';
 
 export default function Login() {
-   const send = useSocket((s) => s.send);
-   const subscribe = useSocket((s) => s.sub);
-   const unsubscribe = useSocket((s) => s.unsub);
+   const send = useSendMessage();
 
    const username = nameStore((s) => s.username);
    const usernameList = nameStore((s) => s.nameList);
@@ -31,17 +30,6 @@ export default function Login() {
       if (errorMessage) setErrorMessage(null);
    };
 
-   useEffect(() => {
-      const handleError = (error: ServerError, message: string) => {
-         if (error === 'INVALID_USERNAME') setErrorMessage(message);
-      };
-
-      subscribe('server:error', handleError);
-      return () => {
-         unsubscribe('server:error', handleError);
-      };
-   }, [subscribe, unsubscribe]);
-
    const [selectedUser, setSelectedUser] = useState('');
    const [nameList, setNameList] = useState<string[]>([]);
    useEffect(() => {
@@ -56,6 +44,15 @@ export default function Login() {
       const name = usernameList[index];
       setUsername(name);
    };
+
+   const handleError: ResponsePayload['server:error'] = useCallback(
+      (error, message) => {
+         if (error === 'INVALID_USERNAME') setErrorMessage(message);
+      },
+      []
+   );
+
+   useOnMessage('server:error', handleError);
 
    return (
       <div className="flex flex-col gap-2 bg-gray-800 rounded-xl p-2">

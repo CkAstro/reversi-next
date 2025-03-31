@@ -28,6 +28,8 @@ export interface PendingGameInfo {
    player: Reversi['Username'];
 }
 
+type GameInfo = PendingGameInfo | ActiveGameInfo | CompletedGameInfo;
+
 export interface GameInfoResponse {
    active: ActiveGameInfo[];
    complete: CompletedGameInfo[];
@@ -95,6 +97,7 @@ type ServerErrorResponse = (error: ServerError, message: string) => void;
 type JoinGameResponse = (
    gameId: Reversi['GameId'],
    role: Reversi['Role'],
+   status: Exclude<Reversi['GameStatus'], 'complete'>,
    opponent: Reversi['Username'] | null
 ) => void;
 
@@ -116,11 +119,8 @@ type UserLeaveResponse = (
 
 // update namespace
 type UpdateLobbyResponse = (
-   response: {
-      gameId: Reversi['GameId'];
-      status: Reversi['GameStatus'];
-      type: 1 | -1;
-   }[]
+   added: { type: Reversi['GameStatus']; game: GameInfo }[],
+   removed: { type: Reversi['GameStatus']; gameId: Reversi['GameId'] }[]
 ) => void;
 
 type UpdateChatResponse = (

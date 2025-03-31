@@ -1,121 +1,80 @@
-'use client';
-
-import { getUniqueId } from '@/lib/utils/getUniqueId';
 import { create } from 'zustand';
-import { io } from 'socket.io-client';
-import type {
-   ActiveGameInfo,
-   CompletedGameInfo,
-   PendingGameInfo,
-   ClientSocket as ReversiSocket,
-} from '@/types/socket';
 import type { Reversi } from '@/types/reversi';
-import { createNewBoard } from '@/lib/boardState/createNewBoard';
-import { path } from '@/lib/config';
+import type { ResponsePayload } from '@/types/socket';
 
-const getAuthKey = () => {
-   if (typeof window === 'undefined') return null;
-
-   const storedKey = localStorage.getItem('authKey');
-   const authKey = storedKey ?? getUniqueId();
-   if (storedKey === null) localStorage.setItem('authKey', authKey);
-
-   return authKey;
-};
-
-const createSocket = () => {
-   return io(undefined, {
-      path, // ws server path - nextjs server:'/api/ws', separate server:'/socket.io'
-      auth: { key: getAuthKey() },
-      reconnection: true,
-   });
-};
-
-interface SocketState {
-   activeGames: ActiveGameInfo[];
-   pendingGames: PendingGameInfo[];
-   recentGames: CompletedGameInfo[];
-   game: string | null;
-   gameType: 'active' | 'waiting' | 'replay' | 'not-found';
+type GameStatus = Exclude<Reversi['GameStatus'], 'complete'>;
+interface GameState {
+   gameId: Reversi['GameId'] | null;
+   gameStatus: GameStatus | null;
    boardState: Reversi['BoardState'];
    role: Reversi['Role'];
-   opponent: Reversi['PlayerId'] | null;
-   observerCount: number;
-   sub: ReversiSocket['on'];
-   unsub: ReversiSocket['off'];
-   send: ReversiSocket['emit'];
+   turn: Reversi['PlayerRole'] | null;
+   opponent: Reversi['Username'] | null;
+   observers: Reversi['Username'][];
+   winner: Reversi['Role'];
+   joinGame: ResponsePayload['game:join'];
+   leaveGame: ResponsePayload['game:leave'];
+   endGame: ResponsePayload['game:end'];
+   setBoardState: ResponsePayload['fetch:boardState'];
+   updateBoardState: ResponsePayload['update:boardState'];
+   setOpponent: (username: Reversi['Username']) => void;
+   addObserver: (username: Reversi['Username']) => void;
+   removeObserver: (username: Reversi['Username']) => void;
 }
 
-export const useSocket = create<SocketState>((set) => {
-   const socket: ReversiSocket = createSocket();
-   socket.on('connect', () => console.log('connected to server'));
-   socket.on('disconnect', () => console.log('disconnected from server'));
-
-   socket.on('server:message', (message, error) => {
-      if (error) console.warn(`received error from server: ${message}`);
-      else console.log(`received message from server: ${message}`);
-   });
-
-   socket.on('server:error', (error, message) => {
-      //
-   });
-
-   socket.on('game:join', (gameId, role, opponentId) => {
-      set({ game: gameId, role, opponent: opponentId });
-   });
-
-   socket.on('game:leave', () => undefined);
-   socket.on('game:end', () => undefined);
-
-   socket.on('game:userJoin', () => undefined);
-   socket.on('game:userLeave', () => undefined);
-
-   socket.on('update:lobby', (response) => {
-      // add/remove games based on response
-   });
-
-   socket.on('update:chat', () => undefined);
-   socket.on('update:boardState', () => undefined);
-
-   socket.on('fetch:lobby', ({ active, complete, pending }) => {
+const defaultBoardState = Array.from({ length: 64 }, () => null);
+export const gameStore = create<GameState>((set, get) => ({
+   gameId: null,
+   gameStatus: null,
+   boardState: [...defaultBoardState],
+   role: null,
+   turn: null,
+   opponent: null,
+   observers: [],
+   winner: null,
+   joinGame: (gameId, role, gameStatus, opponent) => {
       set({
-         activeGames: active,
-         pendingGames: pending,
-         recentGames: complete,
+         gameId,
+         role,
+         gameStatus,
+         opponent,
       });
-   });
-
-   socket.on('fetch:chat', () => undefined);
-   socket.on('fetch:boardState', () => undefined);
-
-   socket.on('set:username', () => undefined);
-
-   return {
-      activeGames: [],
-      pendingGames: [],
-      recentGames: [],
-      game: null,
-      gameType: 'active',
-      boardState: createNewBoard(),
-      role: null,
-      opponent: null,
-      observerCount: 0,
-      sub: (event, action) => {
-         return socket.on(event, action);
-      },
-      unsub: (event, action) => {
-         return socket.off(event, action);
-      },
-      send: (event, ...request) => {
-         if (process.env.NEXT_PUBLIC_DEBUG === 'true')
-            console.log(
-               'sending event',
-               event,
-               '| socket status',
-               socket.connected
-            );
-
-         return socket.emit(event, ...request);
-      },
-   };
-});
+   },
+   leaveGame: (_redirectUrl) => {
+      set({
+         gameId: null,
+         gameStatus: null,
+         boardState: [...defaultBoardState],
+         role: null,
+         opponent: null,
+         observers: [],
+      });
+   },
+   endGame: (boardState, winner) => {
+      set({ boardState, winner });
+   },
+   setBoardState: (boardState, turn) => {
+      set({ boardState, turn });
+   },
+   updateBoardState: (changes, turn) => {
+      const currentState = get().boardState;
+      const updatedState = [...currentState];
+      changes.forEach(({ index, role }) => {
+         updatedState[index] = role;
+      });
+      set({ boardState: updatedState, turn });
+   },
+   setOpponent: (username) => {
+      set({ opponent: username });
+   },
+   addObserver: (username) => {
+      const observers = get().observers;
+      if (!observers.includes(username))
+         set({ observers: [...observers, username] });
+   },
+   removeObserver: (username) => {
+      const observers = get().observers;
+      const updatedObservers = observers.filter((o) => o !== username);
+      set({ observers: updatedObservers });
+   },
+}));

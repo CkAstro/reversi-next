@@ -1,9 +1,10 @@
 'use client';
 
-import ActiveGame from '@/app/games/ActiveGame';
-import { useSocket } from '@/store/gameStore';
-import GridDisplay from '@/ui/GridDisplay';
 import { useEffect } from 'react';
+import { useSendMessage } from '@/hooks/useSendMessage';
+import { lobbyStore } from '@/store/lobbyStore';
+import GridDisplay from '@/ui/GridDisplay';
+import ActiveGame from './ActiveGame';
 
 const blankGame = {
    gameId: null as unknown as string,
@@ -12,25 +13,13 @@ const blankGame = {
 };
 
 export default function Lobby() {
-   const activeGames = useSocket((s) => s.activeGames);
-   const pendingGames = useSocket((s) => s.pendingGames);
-   const send = useSocket((s) => s.send);
-   const sub = useSocket((s) => s.sub);
-   const unsub = useSocket((s) => s.unsub);
+   const activeGames = lobbyStore((s) => s.active);
+   const pendingGames = lobbyStore((s) => s.pending);
+   const send = useSendMessage();
 
    useEffect(() => {
-      const handleFetchLobby = () => undefined;
-      sub('fetch:lobby', handleFetchLobby);
-
-      const handleLobbyUpdate = () => undefined;
-      sub('update:lobby', handleLobbyUpdate);
-
       send('fetch:lobby');
-      return () => {
-         unsub('fetch:lobby', handleFetchLobby);
-         unsub('update:lobby', handleLobbyUpdate);
-      };
-   }, [send, sub, unsub]);
+   }, [send]);
 
    return (
       <div className="w-full h-full flex flex-col gap-2">

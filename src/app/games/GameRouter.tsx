@@ -1,14 +1,16 @@
 'use client';
 
-import { useSocket } from '@/store/gameStore';
+import { useCallback, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useGameListeners } from '@/hooks/useGameListeners';
+import { useOnMessage } from '@/hooks/useOnMessage';
+import { useSendMessage } from '@/hooks/useSendMessage';
+import { useLobbyListeners } from '@/hooks/useLobbyListeners';
+import type { Reversi } from '@/types/reversi';
 
 export default function GameRouter() {
    const router = useRouter();
-   const sub = useSocket((s) => s.sub);
-   const unsub = useSocket((s) => s.unsub);
-   const send = useSocket((s) => s.send);
+   const send = useSendMessage();
    const previousId = useRef<string | null>(null);
 
    const pathname = usePathname();
@@ -23,22 +25,16 @@ export default function GameRouter() {
       if (gameId !== null) send('game:join', gameId);
    }, [pathname, send]);
 
-   // when gameId
-   useEffect(() => {
-      const setRoute = (gameId: string | null) => {
+   const handleSetRoute = useCallback(
+      (gameId: Reversi['GameId'] | null) => {
          router.push(`/games/${gameId ?? ''}`);
-      };
+      },
+      [router]
+   );
 
-      sub('game:join', setRoute);
-      return () => {
-         unsub('game:join', setRoute);
-      };
-      // if (gameId === previousRoute.current) return;
-      // previousRoute.current = gameId;
-
-      // if (gameId === null) return;
-      // router.push(`/games/${gameId}`);
-   }, [sub, unsub, router]);
+   useOnMessage('game:join', handleSetRoute);
+   useGameListeners();
+   useLobbyListeners();
 
    return null;
 }

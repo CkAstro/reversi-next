@@ -1,5 +1,5 @@
-import GameRouter from '@/app/games/GameRouter';
 import Sidebar from '@/ui/sidebar/sidebar';
+import GameRouter from './GameRouter';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
    return (
