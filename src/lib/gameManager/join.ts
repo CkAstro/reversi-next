@@ -4,12 +4,14 @@ import type { Reversi } from '@/types/reversi';
 import type { ServerError } from '@/types/socket';
 import { upgradeGame } from '@/lib/gameManager/upgradeGame';
 
+type JoinGameStatus = Exclude<Reversi['GameStatus'], 'complete'>;
 export const join = (
    gameId: Reversi['GameId'],
    client: Client,
    callback: (
       error: ServerError | null,
       role: Reversi['Role'],
+      status: JoinGameStatus,
       opponent: Client | null,
       observers: Map<Reversi['PlayerId'], Client> | null,
       gameStart: boolean
@@ -17,7 +19,7 @@ export const join = (
 ) => {
    const game = getGame(gameId);
    if (game === null)
-      return callback('GAME_NOT_FOUND', null, null, null, false);
+      return callback('GAME_NOT_FOUND', null, 'pending', null, null, false);
 
    const role = game.addPlayer(client);
    const opponent = client.opponent;
@@ -26,5 +28,12 @@ export const join = (
    const shouldTriggerStart = game.status === 'pending' && opponent !== null;
    if (shouldTriggerStart) upgradeGame(gameId, 'pending');
 
-   callback(null, role, opponent, observers, shouldTriggerStart);
+   callback(
+      null,
+      role,
+      game.status as JoinGameStatus,
+      opponent,
+      observers,
+      shouldTriggerStart
+   );
 };

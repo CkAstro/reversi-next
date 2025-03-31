@@ -26,6 +26,7 @@ describe('join', () => {
       expect(callback).toHaveBeenCalledWith(
          'GAME_NOT_FOUND',
          null,
+         'pending',
          null,
          null,
          false
@@ -60,7 +61,7 @@ describe('join', () => {
       const mockGame = {
          addPlayer: jest.fn(() => mockRole),
          getObservers: jest.fn(() => mockObservers),
-         status: 'active', // we're not testing this
+         status: 'active',
       };
 
       (getGame as jest.Mock).mockReturnValue(mockGame);
@@ -73,6 +74,7 @@ describe('join', () => {
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
+         'active',
          mockOpponent,
          mockObservers,
          false
@@ -93,6 +95,9 @@ describe('join', () => {
       };
 
       (getGame as jest.Mock).mockReturnValue(mockGame);
+      (upgradeGame as jest.Mock).mockImplementation(
+         () => (mockGame.status = 'active')
+      );
       const callback = jest.fn();
 
       join('goodGameId', mockClient, callback);
@@ -100,6 +105,7 @@ describe('join', () => {
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
+         'active',
          mockOpponent,
          mockObservers,
          true

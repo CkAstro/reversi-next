@@ -42,8 +42,11 @@ export default function Login() {
 
    const handleSelectUsername = (index: number) => {
       const name = usernameList[index];
-      setUsername(name);
+      send('set:username', name);
+      // setUsername(name);
    };
+
+   useOnMessage('set:username', setUsername);
 
    const handleError: ResponsePayload['server:error'] = useCallback(
       (error, message) => {

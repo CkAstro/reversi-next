@@ -1,4 +1,5 @@
 import { getSession, verifyUsername } from '@/lib/redis/sessions';
+import { logger } from '@/lib/utils/logger';
 import type { Reversi } from '@/types/reversi';
 import type { SocketHandler } from '@/types/socket';
 
@@ -22,5 +23,9 @@ export const setUsername: SocketHandler['set:username'] =
          );
 
       const playerId = await getSession(authKey, username);
+      const previousUsername = client.username;
       client.updateInfo(playerId, username);
+      client.send('set:username', username);
+
+      logger(`player updated username from ${previousUsername} to ${username}`);
    };

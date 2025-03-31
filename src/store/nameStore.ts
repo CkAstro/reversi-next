@@ -26,8 +26,8 @@ export const nameStore = create<UsernameState>()(
       {
          name: 'usernames',
          partialize: (state) => ({
-            active: state.username,
-            list: state.nameList,
+            username: state.username,
+            nameList: state.nameList,
          }),
       }
    )

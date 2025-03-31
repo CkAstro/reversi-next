@@ -18,7 +18,13 @@ describe('observe', () => {
       const callback = jest.fn();
 
       observe('badGameId', mockClient, callback);
-      expect(callback).toHaveBeenCalledWith('GAME_NOT_FOUND', null, null, null);
+      expect(callback).toHaveBeenCalledWith(
+         'GAME_NOT_FOUND',
+         null,
+         'active',
+         null,
+         null
+      );
    });
 
    test('player is added to game as observer, reported with callback', () => {
@@ -35,6 +41,7 @@ describe('observe', () => {
             return mockRole;
          }),
          getObservers: jest.fn(() => mockObservers),
+         status: 'active',
       };
 
       (getGame as jest.Mock).mockReturnValue(mockGame);
@@ -46,6 +53,7 @@ describe('observe', () => {
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
+         'active',
          null,
          mockObservers
       );
