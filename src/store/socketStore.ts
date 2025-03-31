@@ -16,12 +16,21 @@ const getAuthKey = () => {
 
 interface SocketState {
    socket: ClientSocket;
+   connect: (username: string) => void;
 }
 
-export const socketStore = create<SocketState>(() => ({
-   socket: io(undefined, {
+export const socketStore = create<SocketState>(() => {
+   const socket: ClientSocket = io(undefined, {
       path,
-      auth: { key: getAuthKey() },
+      autoConnect: false,
       reconnection: true,
-   }),
-}));
+   });
+
+   return {
+      socket,
+      connect: (username) => {
+         socket.auth = { key: getAuthKey(), username };
+         socket.connect();
+      },
+   };
+});

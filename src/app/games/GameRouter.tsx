@@ -7,11 +7,13 @@ import { useOnMessage } from '@/hooks/useOnMessage';
 import { useSendMessage } from '@/hooks/useSendMessage';
 import { useLobbyListeners } from '@/hooks/useLobbyListeners';
 import type { Reversi } from '@/types/reversi';
+import { useSocket } from '@/hooks/useSocket';
 
 export default function GameRouter() {
    const router = useRouter();
    const send = useSendMessage();
    const previousId = useRef<string | null>(null);
+   const [connect] = useSocket();
 
    const pathname = usePathname();
    useEffect(() => {
@@ -35,6 +37,7 @@ export default function GameRouter() {
    useOnMessage('game:join', handleSetRoute);
    useGameListeners();
    useLobbyListeners();
+   connect();
 
    return null;
 }

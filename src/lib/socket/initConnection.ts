@@ -8,12 +8,22 @@ import { playerMove } from './playerMove';
 import { fetchLobby } from './fetchLobby';
 import { fetchBoardState } from './fetchBoardState';
 import { setUsername } from './setUsername';
-import { getSession } from '@/lib/redis/sessions';
+import { getSession, verifyUsername } from '@/lib/redis/sessions';
 import type { ServerSocket } from '@/types/socket';
 
 export const initConnection = async (socket: ServerSocket) => {
    // fetch playerId based on auth information, then create client
    const { key: authKey, username = '' } = socket.handshake.auth;
+   const verifiedUser =
+      username === '' || (await verifyUsername(username, authKey));
+
+   if (!verifiedUser)
+      return socket.emit(
+         'server:error',
+         'INVALID_USERNAME',
+         'user:key mismatch.'
+      );
+
    const playerId = await getSession(authKey, username);
    const client = new Client(playerId, socket);
    logger(`client ${playerId} connected (user: ${username})`);
