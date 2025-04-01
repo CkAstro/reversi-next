@@ -2,10 +2,24 @@ import { getRedisClient } from '@/lib/redis/redis';
 import { getRandomId } from '@/lib/utils/getRandomId';
 import type Redis from 'ioredis';
 
+/** hash username/auth key for verification */
+const logUsername = (redis: Redis, username: string, authKey: string) =>
+   redis.hset('usernames', username, authKey);
+
+/** verify username is either free or associated with auth key
+ * @param username username to verify
+ * @param authKey unique client identifier
+ */
+export const verifyUsername = (username: string, authKey: string) =>
+   getRedisClient().then(async (redis) => {
+      const associatedKey = await redis.hget('usernames', username);
+      return associatedKey === null || associatedKey === authKey;
+   });
+
 /** combine authKey and username into a session key
  * @returns authKey:username
  */
-const getSessionKey = (authKey: string, username: string | undefined) =>
+const buildSessionKey = (authKey: string, username: string | undefined) =>
    [authKey, username].join(':');
 
 /** retrieve sessionId from redis
@@ -18,12 +32,12 @@ const getSessionId = async (
    authKey: string,
    username: string
 ): Promise<string> => {
-   const sessionKey = getSessionKey(authKey, username);
+   const sessionKey = buildSessionKey(authKey, username);
    const sessionValue = await redis.get(sessionKey);
    if (sessionValue !== null) return sessionValue;
 
    // check for existing entry with no username
-   const blankKey = getSessionKey(authKey, undefined);
+   const blankKey = buildSessionKey(authKey, undefined);
    const blankValue = await redis.get(blankKey);
 
    // delete old entry if we're upgrading
@@ -31,6 +45,7 @@ const getSessionId = async (
 
    const sessionId = blankValue ?? getRandomId();
    await redis.set(sessionKey, sessionId);
+   await logUsername(redis, username, authKey);
    return sessionId;
 };
 

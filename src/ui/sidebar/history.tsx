@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSocket } from '@/app/games/useSocket';
+import { useEffect, useRef, useState } from 'react';
 import { Expandable } from '@/ui/components/expandable';
 import { GamePiece } from '@/ui/reversi/GamePiece';
 import type { Reversi } from '@/types/reversi';
-import type { ResponsePayload } from '@/types/socket';
+import { lobbyStore } from '@/store/lobbyStore';
 
 const emptyBoardState: Reversi['BoardState'] = Array.from(
    { length: 64 },
@@ -25,34 +24,31 @@ const Board: React.FC<{ boardState: Reversi['BoardState'] }> = ({
 );
 
 export default function History() {
-   const history = useSocket((s) => s.recentGames);
+   const history = lobbyStore((s) => s.complete);
    const [boardState, setBoardState] = useState<
       Record<string, Reversi['BoardState']>
    >({});
-   const sub = useSocket((s) => s.sub);
-   const unsub = useSocket((s) => s.unsub);
+   const boardStateRef = useRef(boardState);
 
    useEffect(() => {
-      const handleReceiveHistory: ResponsePayload['get:games'] = ({
-         complete,
-      }) => {
-         complete.forEach(async ({ gameId }) => {
-            const res = await fetch(`/api/games/${gameId}`, { method: 'GET' });
-            if (res.ok) {
-               const data = await res.json();
-               setBoardState((prev) => ({
-                  ...prev,
-                  [gameId]: data.finalState,
-               }));
-            }
-         });
-      };
+      boardStateRef.current = boardState;
+   }, [boardState]);
 
-      sub('get:games', handleReceiveHistory);
-      return () => {
-         unsub('get:games', handleReceiveHistory);
-      };
-   }, [sub, unsub]);
+   useEffect(() => {
+      history.forEach(({ gameId }) => {
+         if (gameId in boardStateRef.current) return;
+
+         fetch(`/api/games/${gameId}`, { method: 'GET' })
+            .then((response) => {
+               if (response.ok) return response.json();
+               throw new Error(`unable to retrieve game: ${gameId}`);
+            })
+            .then((data) =>
+               setBoardState((prev) => ({ ...prev, [gameId]: data.finalState }))
+            )
+            .catch((error) => console.warn(error));
+      });
+   }, [history]);
 
    return (
       <div className="bg-gray-800 rounded-xl p-2 min-h-0 flex flex-col">
@@ -63,8 +59,8 @@ export default function History() {
                   className="w-full bg-gray-700 p-2"
                   header={
                      <div className="w-full grid grid-cols-2 gap-2">
-                        <span>{game.playerA.name}</span>
-                        <span>{game.playerB.name}</span>
+                        <span>{game.playerA}</span>
+                        <span>{game.playerB}</span>
                      </div>
                   }
                   body={
@@ -77,18 +73,18 @@ export default function History() {
                         <div className="flex flex-col center-items">
                            <div>
                               <span>Score:</span>
-                              <span>{game.playerA.score}</span>
+                              <span>{game.score[0]}</span>
                               <span>vs</span>
-                              <span>{game.playerB.score}</span>
+                              <span>{game.score[1]}</span>
                            </div>
-                           {game.playerA.score === game.playerB.score ? (
+                           {game.score[0] === game.score[1] ? (
                               <div>Tie</div>
                            ) : (
                               <div>
                                  winner:{' '}
-                                 {game.playerA.score > game.playerB.score
-                                    ? game.playerA.name
-                                    : game.playerB.name}
+                                 {game.score[0] > game.score[1]
+                                    ? game.playerA
+                                    : game.playerB}
                               </div>
                            )}
                            <div>View Match</div>

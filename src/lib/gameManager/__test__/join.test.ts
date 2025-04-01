@@ -26,7 +26,7 @@ describe('join', () => {
       expect(callback).toHaveBeenCalledWith(
          'GAME_NOT_FOUND',
          null,
-         null,
+         'pending',
          null,
          false
       );
@@ -55,12 +55,10 @@ describe('join', () => {
       const mockRole = 1;
       const mockOpponent = { playerId: 'player1' } as Client;
       const mockClient = { opponent: mockOpponent } as Client;
-      const mockObservers = new Map<string, Client>();
 
       const mockGame = {
          addPlayer: jest.fn(() => mockRole),
-         getObservers: jest.fn(() => mockObservers),
-         status: 'active', // we're not testing this
+         status: 'active',
       };
 
       (getGame as jest.Mock).mockReturnValue(mockGame);
@@ -68,13 +66,12 @@ describe('join', () => {
 
       join('goodGameId', mockClient, callback);
       expect(mockGame.addPlayer).toHaveBeenCalledWith(mockClient);
-      expect(mockGame.getObservers).toHaveBeenCalled();
       expect(upgradeGame).not.toHaveBeenCalled();
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
+         'active',
          mockOpponent,
-         mockObservers,
          false
       );
    });
@@ -83,16 +80,17 @@ describe('join', () => {
       const mockRole = 1;
       const mockOpponent = { playerId: 'player1' } as Client;
       const mockClient = { opponent: mockOpponent } as Client;
-      const mockObservers = new Map<string, Client>();
 
       const mockGame = {
          gameId: 'goodGameId',
          addPlayer: jest.fn(() => mockRole),
-         getObservers: jest.fn(() => mockObservers),
          status: 'pending',
       };
 
       (getGame as jest.Mock).mockReturnValue(mockGame);
+      (upgradeGame as jest.Mock).mockImplementation(
+         () => (mockGame.status = 'active')
+      );
       const callback = jest.fn();
 
       join('goodGameId', mockClient, callback);
@@ -100,8 +98,8 @@ describe('join', () => {
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
+         'active',
          mockOpponent,
-         mockObservers,
          true
       );
    });

@@ -1,7 +1,14 @@
 import { gameManager } from '@/lib/gameManager/gameManager';
 import { logger } from '@/lib/utils/logger';
-import type { ServerError, SocketHandler } from '@/types/socket';
+import type {
+   AddedGame,
+   RemovedGame,
+   ServerError,
+   ServerIO,
+   SocketHandler,
+} from '@/types/socket';
 import type { Client } from '@/lib/client/Client';
+import type { Reversi } from '@/types/reversi';
 
 type ErrorHandler = (
    client: Client,
@@ -37,33 +44,59 @@ const handleMiscError: ErrorHandler = (client, error, move, gameId) => {
    );
 };
 
+const broadcastUpgrade = (
+   io: ServerIO,
+   gameId: Reversi['GameId'],
+   client: Client
+) => {
+   if (client.game === null) throw new Error('oh no, no game');
+   const [playerA, playerB] = client.game.getPlayers();
+   const score = client.game.getScore();
+
+   const addedGame: AddedGame = {
+      type: 'complete',
+      game: {
+         gameId,
+         playerA: playerA ?? '',
+         playerB: playerB ?? '',
+         score,
+      },
+   };
+
+   const removedGame: RemovedGame = {
+      type: 'active',
+      gameId,
+   };
+
+   io.emit('update:lobby', [addedGame], [removedGame]);
+};
+
 export const playerMove: SocketHandler['player:move'] =
-   (client) => (gameId, moveIndex) => {
+   (client, io) => (gameId, moveIndex) => {
       const role = client.getCurrentRole();
       if (role === 0 || role === null) return;
 
-      gameManager.requestMove(
-         gameId,
-         role,
-         moveIndex,
-         (error, boardState, turn, clients, winner) => {
-            if (error === 'INVALID_MOVE')
-               return handleInvalidMove(client, error, moveIndex, gameId);
-            if (error === 'GAME_NOT_ACTIVE')
-               return handleInactiveGame(client, error, moveIndex, gameId);
-            if (error === 'SERVER_ERROR')
-               return handleGameNotFound(client, error, moveIndex, gameId);
-            if (error) return handleMiscError(client, error, moveIndex, gameId);
+      const callback = (
+         error: ServerError | null,
+         boardState: Reversi['BoardState'],
+         turn: Reversi['PlayerRole'],
+         winner: Reversi['PlayerRole'] | 0 | null
+      ) => {
+         if (error === 'INVALID_MOVE')
+            return handleInvalidMove(client, error, moveIndex, gameId);
+         if (error === 'GAME_NOT_ACTIVE')
+            return handleInactiveGame(client, error, moveIndex, gameId);
+         if (error === 'SERVER_ERROR')
+            return handleGameNotFound(client, error, moveIndex, gameId);
+         if (error) return handleMiscError(client, error, moveIndex, gameId);
 
-            if (winner === null) {
-               clients.forEach((participant) => {
-                  participant.send('get:boardState', boardState, turn);
-               });
-            } else {
-               clients.forEach((participant) => {
-                  participant.send('game:end', boardState, winner);
-               });
-            }
+         if (winner === null) {
+            io.to(gameId).emit('fetch:boardState', boardState, turn);
+         } else {
+            io.to(gameId).emit('game:end', boardState, winner);
+            broadcastUpgrade(io, gameId, client);
          }
-      );
+      };
+
+      gameManager.requestMove(gameId, role, moveIndex, callback);
    };

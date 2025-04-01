@@ -1,11 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import clsx from 'clsx';
-import { useSocket } from '@/app/games/useSocket';
+import { gameStore } from '@/store/gameStore';
 import { getStateFlips } from '@/lib/boardState/getStateFlips';
 import type { Reversi } from '@/types/reversi';
 import { GamePiece } from '@/ui/reversi/GamePiece';
+import { useOnMessage } from '@/hooks/useOnMessage';
+import { useSendMessage } from '@/hooks/useSendMessage';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div
@@ -17,14 +19,13 @@ const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
 );
 
 export default function ReversiBoard() {
-   const boardState = useSocket((s) => s.boardState);
-   const send = useSocket((s) => s.send);
-   const gameId = useSocket((s) => s.game);
-   const sub = useSocket((s) => s.sub);
-   const unsub = useSocket((s) => s.unsub);
+   const boardState = gameStore((s) => s.boardState);
+   const gameId = gameStore((s) => s.gameId);
+   const role = gameStore((s) => s.role);
+
+   const send = useSendMessage();
 
    const [highlights, setHighlights] = useState<number[]>([]);
-   const role = useSocket((s) => s.role);
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
 
    const handleClick = (index: number) => {
@@ -46,21 +47,16 @@ export default function ReversiBoard() {
       setHighlights([]);
    };
 
-   useEffect(() => {
-      const handleGameOver = (
-         _finalBoardState: Reversi['BoardState'],
-         winner: Reversi['PlayerRole'] | 0
-      ) => {
+   const handleGameOver = useCallback(
+      (_finalBoardState: Reversi['BoardState'], winner: Reversi['Role']) => {
          if (winner === 0) console.log("Game over: It's a tie!");
          else if (winner === role) console.log('Game over: You win!');
          else console.log('Game over: You lose!');
-      };
+      },
+      [role]
+   );
 
-      sub('game:end', handleGameOver);
-      return () => {
-         unsub('game:end', handleGameOver);
-      };
-   }, [sub, unsub, role]);
+   useOnMessage('game:end', handleGameOver);
 
    return (
       <div className="flex flex-col">

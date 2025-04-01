@@ -3,8 +3,8 @@ import { logger } from '@/lib/utils/logger';
 import type { Reversi } from '@/types/reversi';
 import {
    fetchCompletedGames,
-   liveGames,
    getPlayer,
+   liveGames,
    saveToDatabase,
 } from '@/lib/game/gameStore';
 import type {
@@ -139,15 +139,8 @@ export const getCompletedGames = async (
       .then((games) =>
          games.map(({ gameId, playerA, playerB, score }) => ({
             gameId,
-            playerA: {
-               name: !!playerA ? playerA : getPlayer('A'),
-               role: 1,
-               score: score[0],
-            },
-            playerB: {
-               name: !!playerB ? playerB : getPlayer('B'),
-               role: -1,
-               score: score[1],
-            },
+            playerA: playerA === '' ? getPlayer('A') : playerA,
+            playerB: playerB === '' ? getPlayer('B') : playerB,
+            score,
          }))
       );

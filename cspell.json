@@ -10,7 +10,9 @@
       "hdel",
       "lrem",
       "lpush",
-      "hset"
+      "hget",
+      "hset",
+      "partialize"
    ],
    "ignorePaths": ["package.json", "package-lock.json"],
    "useGitignore": true,
