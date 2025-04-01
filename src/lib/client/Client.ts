@@ -19,6 +19,18 @@ export class Client {
       this.currentOpponent = null;
    }
 
+   private joinGameRoom() {
+      if (this.currentGame === null) return;
+      const roomName = this.currentGame.gameId;
+      this.socket.join(roomName);
+   }
+
+   private leaveGameRoom() {
+      if (this.currentGame === null) return;
+      const roomName = this.currentGame.gameId;
+      this.socket.leave(roomName);
+   }
+
    public get playerId() {
       return this.id;
    }
@@ -32,7 +44,11 @@ export class Client {
    }
 
    public setGame(game: Game | null) {
+      if (game?.gameId === this.currentGame?.gameId) return;
+      this.leaveGameRoom();
+
       this.currentGame = game;
+      this.joinGameRoom();
    }
 
    public getCurrentRole() {
@@ -56,6 +72,16 @@ export class Client {
       ...payload: Parameters<ResponsePayload[E]>
    ) {
       this.socket.emit(event, ...payload);
+   }
+
+   public sendToRoom<E extends keyof ResponsePayload>(
+      event: E,
+      ...payload: Parameters<ResponsePayload[E]>
+   ) {
+      if (this.currentGame === null) return;
+
+      const roomName = this.currentGame.gameId;
+      this.socket.to(roomName).emit(event, ...payload);
    }
 
    public getAuthKey() {

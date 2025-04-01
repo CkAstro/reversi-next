@@ -6,8 +6,7 @@ export const gameCreate: SocketHandler['game:create'] = (client) => () => {
    gameManager.create(client, (gameId, role) => {
       client.send('game:join', gameId, role, 'pending', null);
 
-      logger(
-         `game ${gameId} created by player ${client.playerId} (role: ${role})`
-      );
+      const playerId = client.playerId;
+      logger(`game ${gameId} created by player ${playerId} (role: ${role})`);
    });
 };

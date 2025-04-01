@@ -20,19 +20,13 @@ export const gameJoin: SocketHandler['game:join'] = (client) => (gameId) => {
       error: ServerError | null,
       role: Reversi['Role'],
       status: Exclude<Reversi['GameStatus'], 'complete'>,
-      opponent: Client | null,
-      observers: Map<Reversi['PlayerId'], Client> | null,
-      _gameStart: boolean
+      opponent: Client | null
    ) => {
       if (error !== null) return handleError(client, gameId, error);
 
       const opponentId = opponent?.username ?? null;
       client.send('game:join', gameId, role, status, opponentId);
-      opponent?.send('game:userJoin', client.username, role);
-      observers?.forEach((observer) => {
-         if (observer.playerId === client.playerId) return;
-         observer.send('game:userJoin', client.username, role);
-      });
+      client.sendToRoom('game:userJoin', client.username, role);
 
       logger(`player ${client.playerId} joined game ${gameId} (role: ${role})`);
    };

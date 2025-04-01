@@ -1,24 +1,32 @@
 import { gameManager } from '@/lib/gameManager/gameManager';
 import { logger } from '@/lib/utils/logger';
-import type { SocketHandler } from '@/types/socket';
+import type { ServerError, SocketHandler } from '@/types/socket';
+import type { Reversi } from '@/types/reversi';
+import type { Client } from '@/lib/client/Client';
+
+const handleError = (
+   client: Client,
+   gameId: Reversi['GameId'],
+   error: ServerError
+) => {
+   client.send('server:error', error, `Failed to find game ${gameId}.`);
+   logger(`could not fetch board state for game ${gameId} (${error})`);
+};
 
 export const fetchBoardState: SocketHandler['fetch:boardState'] =
    (client) => (gameId) => {
-      gameManager.getBoardState(gameId, (error, boardState, turn) => {
-         if (error !== null) {
-            client.send(
-               'server:error',
-               error,
-               `Failed to find game ${gameId}.`
-            );
-            return;
-         }
+      const callback = (
+         error: ServerError | null,
+         boardState: Reversi['BoardState'],
+         turn: Reversi['PlayerRole']
+      ) => {
+         if (error !== null) return handleError(client, gameId, error);
 
          client.send('fetch:boardState', boardState, turn);
-         logger(
-            `player ${
-               client.playerId
-            } requested boardState - game ${gameId} (role ${client.getCurrentRole()})`
-         );
-      });
+
+         const playerId = client.playerId;
+         logger(`player ${playerId} requested boardState for game ${gameId}`);
+      };
+
+      gameManager.getBoardState(gameId, callback);
    };
