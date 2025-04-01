@@ -50,15 +50,16 @@ const broadcastUpgrade = (
    client: Client
 ) => {
    if (client.game === null) throw new Error('oh no, no game');
-   const players = client.game.getPlayers();
+   const [playerA, playerB] = client.game.getPlayers();
    const score = client.game.getScore();
 
    const addedGame: AddedGame = {
       type: 'complete',
       game: {
          gameId,
-         playerA: { name: players[0] ?? '', role: 1, score: score[0] },
-         playerB: { name: players[1] ?? '', role: -1, score: score[0] },
+         playerA: playerA ?? '',
+         playerB: playerB ?? '',
+         score,
       },
    };
 

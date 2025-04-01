@@ -29,13 +29,11 @@ export const saveToDatabase = (game: Game) => {
    });
 };
 
-const playerAList = ['playerA', 'player 1', 'player N', 'test player'];
-const playerBList = ['playerB', 'player 2', 'player M', 'other player'];
 export const getPlayer = (list?: 'A' | 'B'): string =>
    list === 'A'
-      ? playerAList[Math.floor(Math.random() * playerAList.length)]
+      ? `player${Math.floor(1000 + 4000 * Math.random())}`
       : list === 'B'
-      ? playerBList[Math.floor(Math.random() * playerBList.length)]
+      ? `player${Math.floor(5000 + 4000 * Math.random())}`
       : Math.random() < 0.5
       ? getPlayer('A')
       : getPlayer('B');

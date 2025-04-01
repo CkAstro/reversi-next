@@ -14,16 +14,11 @@ export interface ActiveGameInfo {
    observerCount: number;
 }
 
-interface GamePlayerInfo {
-   name: PlayerName;
-   role: Reversi['PlayerRole'];
-   score: number;
-}
-
 export interface CompletedGameInfo {
    gameId: Reversi['GameId'];
-   playerA: GamePlayerInfo;
-   playerB: GamePlayerInfo;
+   playerA: Reversi['Username'];
+   playerB: Reversi['Username'];
+   score: [number, number];
 }
 
 export interface PendingGameInfo {

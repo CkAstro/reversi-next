@@ -59,8 +59,8 @@ export default function History() {
                   className="w-full bg-gray-700 p-2"
                   header={
                      <div className="w-full grid grid-cols-2 gap-2">
-                        <span>{game.playerA.name}</span>
-                        <span>{game.playerB.name}</span>
+                        <span>{game.playerA}</span>
+                        <span>{game.playerB}</span>
                      </div>
                   }
                   body={
@@ -73,18 +73,18 @@ export default function History() {
                         <div className="flex flex-col center-items">
                            <div>
                               <span>Score:</span>
-                              <span>{game.playerA.score}</span>
+                              <span>{game.score[0]}</span>
                               <span>vs</span>
-                              <span>{game.playerB.score}</span>
+                              <span>{game.score[1]}</span>
                            </div>
-                           {game.playerA.score === game.playerB.score ? (
+                           {game.score[0] === game.score[1] ? (
                               <div>Tie</div>
                            ) : (
                               <div>
                                  winner:{' '}
-                                 {game.playerA.score > game.playerB.score
-                                    ? game.playerA.name
-                                    : game.playerB.name}
+                                 {game.score[0] > game.score[1]
+                                    ? game.playerA
+                                    : game.playerB}
                               </div>
                            )}
                            <div>View Match</div>
