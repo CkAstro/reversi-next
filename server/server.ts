@@ -16,7 +16,7 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', (socket) => {
-   initConnection(socket);
+   initConnection(io, socket);
 });
 
 httpServer.listen(3001, '0.0.0.0', () => {

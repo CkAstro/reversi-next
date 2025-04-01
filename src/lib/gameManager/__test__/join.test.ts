@@ -28,7 +28,6 @@ describe('join', () => {
          null,
          'pending',
          null,
-         null,
          false
       );
    });
@@ -56,11 +55,9 @@ describe('join', () => {
       const mockRole = 1;
       const mockOpponent = { playerId: 'player1' } as Client;
       const mockClient = { opponent: mockOpponent } as Client;
-      const mockObservers = new Map<string, Client>();
 
       const mockGame = {
          addPlayer: jest.fn(() => mockRole),
-         getObservers: jest.fn(() => mockObservers),
          status: 'active',
       };
 
@@ -69,14 +66,12 @@ describe('join', () => {
 
       join('goodGameId', mockClient, callback);
       expect(mockGame.addPlayer).toHaveBeenCalledWith(mockClient);
-      expect(mockGame.getObservers).toHaveBeenCalled();
       expect(upgradeGame).not.toHaveBeenCalled();
       expect(callback).toHaveBeenCalledWith(
          null,
          mockRole,
          'active',
          mockOpponent,
-         mockObservers,
          false
       );
    });
@@ -85,12 +80,10 @@ describe('join', () => {
       const mockRole = 1;
       const mockOpponent = { playerId: 'player1' } as Client;
       const mockClient = { opponent: mockOpponent } as Client;
-      const mockObservers = new Map<string, Client>();
 
       const mockGame = {
          gameId: 'goodGameId',
          addPlayer: jest.fn(() => mockRole),
-         getObservers: jest.fn(() => mockObservers),
          status: 'pending',
       };
 
@@ -107,7 +100,6 @@ describe('join', () => {
          mockRole,
          'active',
          mockOpponent,
-         mockObservers,
          true
       );
    });

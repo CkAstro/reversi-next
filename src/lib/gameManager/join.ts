@@ -13,17 +13,15 @@ export const join = (
       role: Reversi['Role'],
       status: JoinGameStatus,
       opponent: Client | null,
-      observers: Map<Reversi['PlayerId'], Client> | null,
       gameStart: boolean
    ) => void
 ) => {
    const game = getGame(gameId);
    if (game === null)
-      return callback('GAME_NOT_FOUND', null, 'pending', null, null, false);
+      return callback('GAME_NOT_FOUND', null, 'pending', null, false);
 
    const role = game.addPlayer(client);
    const opponent = client.opponent;
-   const observers = game.getObservers();
 
    const shouldTriggerStart = game.status === 'pending' && opponent !== null;
    if (shouldTriggerStart) upgradeGame(gameId, 'pending');
@@ -33,7 +31,6 @@ export const join = (
       role,
       game.status as JoinGameStatus,
       opponent,
-      observers,
       shouldTriggerStart
    );
 };

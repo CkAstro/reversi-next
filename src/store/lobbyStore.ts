@@ -11,7 +11,7 @@ import type {
 const filterGame = <T extends { gameId: string }>(
    gameList: T[],
    gameId: string
-) => gameList.filter(({ gameId: id }) => id === gameId);
+) => gameList.filter(({ gameId: id }) => id !== gameId);
 
 const addGame = <
    T extends PendingGameInfo | ActiveGameInfo | CompletedGameInfo

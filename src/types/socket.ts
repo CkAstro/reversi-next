@@ -2,6 +2,9 @@ import type { Reversi } from '@/types/reversi';
 import type { Socket as SocketClient } from 'socket.io-client';
 import type { Socket as SocketServer } from 'socket.io';
 import type { Client } from '@/lib/client/Client';
+import type { Server } from 'socket.io';
+
+export type ServerIO = Server<RequestPayload, ResponsePayload>;
 
 export type PlayerName = string;
 export interface ActiveGameInfo {
@@ -27,8 +30,6 @@ export interface PendingGameInfo {
    gameId: Reversi['GameId'];
    player: Reversi['Username'];
 }
-
-type GameInfo = PendingGameInfo | ActiveGameInfo | CompletedGameInfo;
 
 export interface GameInfoResponse {
    active: ActiveGameInfo[];
@@ -118,10 +119,20 @@ type UserLeaveResponse = (
 ) => void;
 
 // update namespace
-type UpdateLobbyResponse = (
-   added: { type: Reversi['GameStatus']; game: GameInfo }[],
-   removed: { type: Reversi['GameStatus']; gameId: Reversi['GameId'] }[]
-) => void;
+export type AddedGame =
+   | { type: Extract<Reversi['GameStatus'], 'pending'>; game: PendingGameInfo }
+   | { type: Extract<Reversi['GameStatus'], 'active'>; game: ActiveGameInfo }
+   | { type: Extract<Reversi['GameStatus'], 'replay'>; game: ActiveGameInfo }
+   | {
+        type: Extract<Reversi['GameStatus'], 'complete'>;
+        game: CompletedGameInfo;
+     };
+export interface RemovedGame {
+   type: Reversi['GameStatus'];
+   gameId: Reversi['GameId'];
+}
+
+type UpdateLobbyResponse = (added: AddedGame[], removed: RemovedGame[]) => void;
 
 type UpdateChatResponse = (
    username: Reversi['Username'],
@@ -171,8 +182,15 @@ export interface ResponsePayload {
 // --- Socket.io Objects --- //
 export type ClientSocket = SocketClient<ResponsePayload, RequestPayload>;
 export type ServerSocket = SocketServer<RequestPayload, ResponsePayload>;
+
+type UpgradeEvent = Extract<
+   keyof RequestPayload,
+   'game:join' | 'game:create' | 'game:replay' | 'player:move'
+>;
 export type SocketHandler = {
-   [E in keyof RequestPayload]: (client: Client) => RequestPayload[E];
+   [E in keyof RequestPayload]: E extends UpgradeEvent
+      ? (client: Client, io: ServerIO) => RequestPayload[E]
+      : (client: Client) => RequestPayload[E];
 };
 
 // --- Client Construction --- //
