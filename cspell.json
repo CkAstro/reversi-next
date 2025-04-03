@@ -1,6 +1,19 @@
 {
    "version": "0.2",
-   "words": ["reversi", "kolb", "unsub", "preconfigured"],
+   "words": [
+      "reversi",
+      "kolb",
+      "unsub",
+      "preconfigured",
+      "hmget",
+      "lrange",
+      "hdel",
+      "lrem",
+      "lpush",
+      "hget",
+      "hset",
+      "partialize"
+   ],
    "ignorePaths": ["package.json", "package-lock.json"],
    "useGitignore": true,
    "cache": {

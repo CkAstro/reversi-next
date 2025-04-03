@@ -47,7 +47,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponseWS) {
             next();
          });
 
-      initConnection(socket);
+      initConnection(io, socket);
    });
 
    logger('socket server running on http://localhost:3000/api/ws');

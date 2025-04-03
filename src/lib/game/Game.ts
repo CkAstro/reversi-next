@@ -1,6 +1,6 @@
 import { createNewBoard } from '@/lib/boardState/createNewBoard';
 import type { Client } from '@/lib/client/Client';
-import { addPendingGame } from './gameCache';
+import { addPendingGame } from './cacheInterface';
 import { getRandomId } from '@/lib/utils/getRandomId';
 import type { Reversi } from '@/types/reversi';
 import { assignToGame } from './assignToGame';
@@ -16,6 +16,9 @@ import { removePlayer } from './removePlayer';
 import { placeGamePiece } from './placeGamePiece';
 import { getAllClients } from './getAllClients';
 import { getPlayers } from './getPlayers';
+import { completeGame } from './completeGame';
+import { isGameOver } from './isGameOver';
+import { startGame } from '@/lib/game/startGame';
 
 class Game {
    private id: Reversi['GameId'];
@@ -29,6 +32,8 @@ class Game {
    public _playerA: Client | null;
    public _playerB: Client | null;
    public _observers: Map<Reversi['PlayerId'], Client>;
+   public _startTime: number | null;
+   public _endTime: number | null;
 
    public constructor(client: Client) {
       this.id = getRandomId();
@@ -42,6 +47,8 @@ class Game {
       this._playerA = null;
       this._playerB = null;
       this._observers = new Map<Reversi['PlayerId'], Client>();
+      this._startTime = null;
+      this._endTime = null;
 
       // init
       const playerRole = Math.random() < 0.5 ? 1 : -1;
@@ -56,8 +63,24 @@ class Game {
       return this._currentTurn;
    }
 
+   public get firstTurn() {
+      return this._firstTurn;
+   }
+
    public get status() {
       return this._currentStatus;
+   }
+
+   public setStatus(status: Reversi['GameStatus']) {
+      this._currentStatus = status;
+   }
+
+   public get moveHistory() {
+      return this._moveHistory;
+   }
+
+   public getReducedHistory() {
+      return this._moveHistory.map(({ move }) => move);
    }
 
    public getObservers() {
@@ -68,8 +91,27 @@ class Game {
       return this._observers.size;
    }
 
+   public get startTime() {
+      return this._startTime;
+   }
+
+   public get endTime() {
+      return this._endTime;
+   }
+
    public isComplete() {
       return this.status === 'complete';
+   }
+
+   public getScore(): [number, number] {
+      let playerAScore = 0;
+      let playerBScore = 0;
+      for (let i = 0; i < 64; i++) {
+         if (this._boardState[i] === 1) playerAScore++;
+         else if (this._boardState[i] === -1) playerBScore++;
+      }
+
+      return [playerAScore, playerBScore];
    }
 
    public _assignToGame = assignToGame;
@@ -85,6 +127,9 @@ class Game {
    public placeGamePiece = placeGamePiece;
    public getAllClients = getAllClients;
    public getPlayers = getPlayers;
+   public startGame = startGame;
+   public completeGame = completeGame;
+   public isGameOver = isGameOver;
 }
 
 export type { Game };

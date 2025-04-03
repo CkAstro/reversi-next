@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import clsx from 'clsx';
-import { useSocket } from '@/app/games/useSocket';
+import { gameStore } from '@/store/gameStore';
 import { getStateFlips } from '@/lib/boardState/getStateFlips';
+import type { Reversi } from '@/types/reversi';
+import { GamePiece } from '@/ui/reversi/GamePiece';
+import { useOnMessage } from '@/hooks/useOnMessage';
+import { useSendMessage } from '@/hooks/useSendMessage';
 
 const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    <div
@@ -14,31 +18,14 @@ const Highlight: React.FC<{ highlight: boolean }> = ({ highlight }) => (
    />
 );
 
-const BoardPiece: React.FC<{
-   piece: 1 | -1 | null;
-   preview: 1 | -1 | null;
-}> = ({ piece, preview }) => {
-   if (piece === null && preview === null) return null;
-
-   return (
-      <div
-         className={clsx(
-            'absolute top-1/10 left-1/10 right-1/10 bottom-1/10 rounded-full',
-            piece === null && 'opacity-50',
-            (piece ?? preview) === 1 && 'bg-black',
-            (piece ?? preview) === -1 && 'bg-white'
-         )}
-      />
-   );
-};
-
 export default function ReversiBoard() {
-   const boardState = useSocket((s) => s.boardState);
-   const send = useSocket((s) => s.send);
-   const gameId = useSocket((s) => s.game);
+   const boardState = gameStore((s) => s.boardState);
+   const gameId = gameStore((s) => s.gameId);
+   const role = gameStore((s) => s.role);
+
+   const send = useSendMessage();
 
    const [highlights, setHighlights] = useState<number[]>([]);
-   const role = useSocket((s) => s.role);
    const [mouseoverIndex, setMouseoverIndex] = useState(-1);
 
    const handleClick = (index: number) => {
@@ -60,6 +47,17 @@ export default function ReversiBoard() {
       setHighlights([]);
    };
 
+   const handleGameOver = useCallback(
+      (_finalBoardState: Reversi['BoardState'], winner: Reversi['Role']) => {
+         if (winner === 0) console.log("Game over: It's a tie!");
+         else if (winner === role) console.log('Game over: You win!');
+         else console.log('Game over: You lose!');
+      },
+      [role]
+   );
+
+   useOnMessage('game:end', handleGameOver);
+
    return (
       <div className="flex flex-col">
          <span>
@@ -76,7 +74,7 @@ export default function ReversiBoard() {
                   onPointerLeave={handlePointerLeave}
                >
                   <Highlight highlight={highlights.includes(index)} />
-                  <BoardPiece
+                  <GamePiece
                      piece={piece}
                      preview={
                         mouseoverIndex === index && role !== 0 ? role : null

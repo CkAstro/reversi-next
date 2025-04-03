@@ -1,4 +1,12 @@
 services:
+   redis:
+      image: redis:7-alpine
+      volumes:
+         - ./docker-volume-data/redis:/data/redis
+   mongo:
+      image: mongo
+      volumes:
+         - ./docker-volume-data/mongodb:/data/mongodb
    app:
       image: reversi-dev
       build:
@@ -11,6 +19,9 @@ services:
          - 3000:3000
       env_file:
          - ../.env
+      depends_on:
+         - redis
+         - mongo
    server:
       image: reversi-dev-server
       build:

@@ -1,9 +1,10 @@
 'use client';
 
-import ActiveGame from '@/app/games/ActiveGame';
-import { useSocket } from '@/app/games/useSocket';
-import GridDisplay from '@/ui/GridDisplay';
 import { useEffect } from 'react';
+import { useSendMessage } from '@/hooks/useSendMessage';
+import { lobbyStore } from '@/store/lobbyStore';
+import GridDisplay from '@/ui/GridDisplay';
+import ActiveGame from './ActiveGame';
 
 const blankGame = {
    gameId: null as unknown as string,
@@ -12,12 +13,12 @@ const blankGame = {
 };
 
 export default function Lobby() {
-   const activeGames = useSocket((s) => s.activeGames);
-   const pendingGames = useSocket((s) => s.pendingGames);
-   const send = useSocket((s) => s.send);
+   const activeGames = lobbyStore((s) => s.active);
+   const pendingGames = lobbyStore((s) => s.pending);
+   const send = useSendMessage();
 
    useEffect(() => {
-      send('get:games');
+      send('fetch:lobby');
    }, [send]);
 
    return (

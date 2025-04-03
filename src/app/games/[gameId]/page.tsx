@@ -1,14 +1,15 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { useSocket } from '@/app/games/useSocket';
+import { gameStore } from '@/store/gameStore';
 import { useEffect, useRef } from 'react';
-import ReversiBoard from '@/app/games/[gameId]/ReversiBoard';
+import { useSendMessage } from '@/hooks/useSendMessage';
+import ReversiBoard from './ReversiBoard';
 
 export default function Page(props: { params: Promise<{ gameId: string }> }) {
    const gameIdRef = useRef<string | null>(null);
-   const gameType = useSocket((s) => s.gameType);
-   const send = useSocket((s) => s.send);
+   const gameStatus = gameStore((s) => s.gameStatus);
+   const send = useSendMessage();
 
    /* we want to rely on an established connection
     * rather than api-request, so we will wait on
@@ -20,11 +21,11 @@ export default function Page(props: { params: Promise<{ gameId: string }> }) {
          if (gameIdRef.current === gameId) return;
          gameIdRef.current = gameId;
 
-         send('get:boardState', gameId);
+         send('fetch:boardState', gameId);
       });
    }, [props, send]);
 
-   if (gameType === 'not-found') return notFound();
+   if (gameStatus === null) return notFound();
    return (
       <div className="w-full h-full flex items-center justify-center">
          <ReversiBoard />

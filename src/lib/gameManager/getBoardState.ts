@@ -1,4 +1,4 @@
-import { getGame } from '@/lib/game/gameCache';
+import { getGame } from '@/lib/game/cacheInterface';
 import type { Reversi } from '@/types/reversi';
 import type { ServerError } from '@/types/socket';
 

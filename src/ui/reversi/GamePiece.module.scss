@@ -1,0 +1,38 @@
+.black_simple {
+   background-color: black;
+}
+
+.white_simple {
+   background-color: white;
+}
+
+.black {
+   transform: scaleY(1);
+   background: linear-gradient(rgb(50, 50, 50), rgb(0, 0, 0));
+   & > div {
+      background: linear-gradient(rgb(25, 25, 25), rgb(100, 100, 100));
+   }
+}
+
+.white {
+   transform: scaleY(-1);
+   background: linear-gradient(rgb(125, 125, 125), rgb(255, 255, 255));
+   & > div {
+      background: linear-gradient(rgb(255, 255, 255), rgb(175, 175, 175));
+   }
+}
+
+.black > div,
+.white > div {
+   position: absolute;
+   top: 3px;
+   left: 3px;
+   right: 3px;
+   bottom: 3px;
+   border-radius: 100%;
+}
+
+.black,
+.white {
+   transition: transform 300ms ease;
+}
